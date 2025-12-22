@@ -1,0 +1,38 @@
+sprint:
+  name: "Initial Sandbox"
+  goal: "Stand up local WAF Security lab"
+  cadence: "kanban"
+
+# Story status tracker
+# key format: epicNumber-storyNumber-slug
+# statuses: backlog | drafted | ready | in-progress | review | done
+
+development_status:
+  1-1-init-local-sandbox: drafted
+  1-2-establish-duckdb-schema: drafted
+  1-3-streamlit-shell-personas: drafted
+  1-4-sample-data-loader: drafted
+  2-1-csv-ingestion-cli: drafted
+  2-2-fingerprinting-scores: backlog
+  2-3-rule-sync-adapters: backlog
+  2-4-enrichment-status-cli-flags: backlog
+  2-5-stale-data-warning: backlog
+  2-6-data-export-utilities: backlog
+  3-1-persona-api-endpoint: backlog
+  3-2-score-to-story-mapping: backlog
+  3-3-persona-usage-logging: backlog
+  3-4-persona-card-ui: backlog
+  4-1-rule-explorer-grid: backlog
+  4-2-rule-comparison-drawer: backlog
+  4-3-rule-annotation-notes: backlog
+  4-4-rule-freshness-metadata: backlog
+  5-1-radar-dashboard-table: backlog
+  5-2-radar-one-pager-export: backlog
+  5-3-rule-transparency-brief-export: backlog
+  5-4-board-brief-bundle: backlog
+  5-5-copy-friendly-snippets: backlog
+  6-1-adapter-configuration-panel: backlog
+  6-2-role-based-access: backlog
+  6-3-audit-logging: backlog
+  6-4-adapter-interface-contract: backlog
+  6-5-stale-rule-alerting-admin: backlog

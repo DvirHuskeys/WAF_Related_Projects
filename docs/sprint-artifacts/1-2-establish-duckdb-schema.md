@@ -1,0 +1,63 @@
+# Story 1.2: Establish DuckDB Schema
+
+Status: drafted
+
+## Story
+
+As a developer,  
+I want a repeatable script that creates the DuckDB database and required tables,  
+so that enrichment and rule-sync jobs can persist records without manual SQL.
+
+## Acceptance Criteria
+
+1. Given I run `python scripts/init_duckdb.py` (or the equivalent storage helper), when `data/warehouse.db` does not exist, then tables `domain_enrichment` and `managed_rules` are created with the columns defined in the PRD (including JSON fields).  
+2. Re-running the script is idempotent: schema creation does not fail if the database or tables already exist.  
+3. The script prints success/failure messaging and exits non‑zero on fatal errors; docs/README reference the command.  
+4. JSON support is enabled in DuckDB so `raw` and `metadata` columns accept structured content.
+
+## Tasks / Subtasks
+
+- [ ] Implement `scripts/init_duckdb.py` (AC: 1,4)  
+  - [ ] Use `duckdb.connect("data/warehouse.db")` and execute the CREATE TABLE statements from PRD.  
+  - [ ] Enable JSON extension (`INSTALL/LOAD json`) before creating tables.  
+- [ ] Make migration idempotent (AC: 2)  
+  - [ ] Wrap CREATE statements with `CREATE TABLE IF NOT EXISTS` or check catalog before creation.  
+  - [ ] Add sanity check query that prints table counts after creation.  
+- [ ] Developer ergonomics (AC: 3)  
+  - [ ] Document the command in README/Makefile.  
+  - [ ] Emit clear console output (success + next steps).
+
+## Dev Notes
+
+- Aligns with architecture goal of keeping everything local-first (`docs/architecture.md#1-project-context--goals`).  
+- Schema definitions come straight from `docs/prd.md#functional-requirements` → Intelligence Harvesting & Rule Transparency sections.  
+- Script should live under `scripts/` per project structure established in Story 1.1; reuse the same virtualenv instructions.  
+- Future epics (radar, persona) depend on these tables, so include simple validation query (e.g., `duckdb.sql("DESCRIBE domain_enrichment")`) after creation.
+
+### Project Structure Notes
+
+- Place the script in `scripts/` and update the root README/Makefile created in Story 1.1 so the bootstrap sequence becomes: create venv → run `init_duckdb.py` → seed sample data.  
+- Ensure `backend/services/storage.py` exposes helper functions that the CLI and Streamlit UI can reuse (avoid duplicate SQL). No path conflicts detected.
+
+### References
+
+- [Source: docs/epics.md#epic-1-foundation-sandbox--data-layer]  
+- [Source: docs/prd.md#functional-requirements]  
+- [Source: docs/architecture.md#5-data-model-snapshot-duckdb]
+
+## Dev Agent Record
+
+### Context Reference
+
+<!-- story-context XML will be referenced once generated -->
+
+### Agent Model Used
+
+_TBD during implementation_
+
+### Debug Log References
+
+### Completion Notes List
+
+### File List
+

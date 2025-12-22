@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>WAF Security – Design Direction Showcase</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #06070c;
+      color: #f5f6fb;
+      padding: 32px;
+    }
+    h1 { margin-top: 0; }
+    .directions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 24px;
+    }
+    .panel {
+      background: #11131b;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 20px;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.45);
+    }
+    .screen {
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.12);
+      margin-bottom: 16px;
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      background: #0b0d13;
+    }
+    .nav {
+      display: flex;
+      gap: 12px;
+      padding: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .nav button {
+      flex: 1;
+      border-radius: 12px;
+      border: none;
+      padding: 10px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .content {
+      flex: 1;
+      padding: 20px;
+      display: grid;
+      gap: 12px;
+    }
+    .card {
+      border-radius: 12px;
+      padding: 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      margin-right: 6px;
+    }
+    .details {
+      font-size: 0.9rem;
+      color: #c6cadb;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <h1>Design Direction Mockups</h1>
+  <p>Each direction illustrates layout, density, and interaction philosophy for the WAFtotal + GTM Radar experience.</p>
+
+  <div class="directions">
+    <div class="panel">
+      <div class="screen">
+        <div class="nav">
+          <button style="background:#2D7BFF;color:#fff;">Radar</button>
+          <button style="background:transparent;color:#c7d1f5;border:1px solid rgba(255,255,255,0.15);">Rule Studio</button>
+          <button style="background:transparent;color:#c7d1f5;border:1px solid rgba(255,255,255,0.15);">Workspaces</button>
+        </div>
+        <div class="content" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
+          <div class="card">
+            <strong>GTM Priority</strong>
+            <p>example.com<br/><span style="color:#4ADE80;">Drift 0.82 · Lead with coherence</span></p>
+          </div>
+          <div class="card">
+            <strong>Stack Snapshot</strong>
+            <p>Cloudflare + Fastly · Last updated 2 days ago</p>
+          </div>
+          <div class="card" style="grid-column: span 2;">
+            <strong>Story Prompt</strong>
+            <p>“Highlight how WAFtotal exposes hidden rule drift...”</p>
+          </div>
+        </div>
+      </div>
+      <h2>Direction #1 – Two-Panel Command Center</h2>
+      <p class="details">
+        <span class="badge" style="background:#2D7BFF33;color:#2D7BFF;">Dense</span>
+        <span class="badge" style="background:#10B98122;color:#10B981;">Sidebar Nav</span>
+        <br/>
+        Enterprise-style control room with left navigation, right-side detail panel. Ideal for analysts juggling many domains simultaneously.
+      </p>
+    </div>
+
+    <div class="panel">
+      <div class="screen">
+        <div class="content" style="grid-template-columns: repeat(1, minmax(0, 1fr));">
+          <div class="card" style="background:linear-gradient(135deg,#FF007A,#FF8A00);border:none;">
+            <strong>Pulse Story</strong>
+            <p>“Your top 5 accounts show rule freshness gaps over 40 days.”</p>
+          </div>
+          <div class="card">
+            <strong>Persona Carousel</strong>
+            <p>AE Alex • CISO Cassandra • Platform Winston</p>
+          </div>
+          <div class="card">
+            <strong>Action Feed</strong>
+            <p>Alex copied a story | Winston exported rule diff | Paige published briefing</p>
+          </div>
+        </div>
+      </div>
+      <h2>Direction #2 – Storytelling Canvas</h2>
+      <p class="details">
+        <span class="badge" style="background:#FF007A33;color:#FF5AAF;">Immersive</span>
+        <span class="badge" style="background:#F59E0B33;color:#F59E0B;">Card Grid</span>
+        <br/>
+        Narrative-first layout with hero callouts, vertical scrolling, and persona carousel for GTM collaboration.
+      </p>
+    </div>
+
+    <div class="panel">
+      <div class="screen">
+        <div class="nav" style="flex-direction:column;min-width:140px;background:#0c0f15;">
+          <button style="background:transparent;color:#9CA3AF;border:none;text-align:left;">Overview</button>
+          <button style="background:#4ADE80;color:#04120a;text-align:left;">Run Radar</button>
+          <button style="background:transparent;color:#9CA3AF;border:none;text-align:left;">Rule Library</button>
+          <button style="background:transparent;color:#9CA3AF;border:none;text-align:left;">Reports</button>
+        </div>
+        <div class="content" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
+          <div class="card" style="grid-column: span 2;">
+            <strong>Live Radar Table</strong>
+            <p>Sortable columns for Drift, Downtime, Attack Surface with inline persona chips.</p>
+          </div>
+          <div class="card">
+            <strong>Rule Translator</strong>
+            <p>Compare Cloudflare Rule 100001 with AWS Shield signature.</p>
+          </div>
+          <div class="card">
+            <strong>Insights Queue</strong>
+            <p>Awaiting review • Published • Archived</p>
+          </div>
+        </div>
+      </div>
+      <h2>Direction #3 – Analyst Grid</h2>
+      <p class="details">
+        <span class="badge" style="background:#4ADE8020;color:#4ADE80;">Data-Heavy</span>
+        <span class="badge" style="background:#818CF822;color:#818CF8;">Tri-Column</span>
+        <br/>
+        Optimized for power users with wide monitors. Sidebar nav + tri-column content keeps data, comparisons, and actions visible at once.
+      </p>
+    </div>
+
+    <div class="panel">
+      <div class="screen">
+        <div class="content" style="grid-template-columns: repeat(1, minmax(0, 1fr));">
+          <div class="card">
+            <strong>Focus Mode</strong>
+            <p>One domain at a time with checklist progression (Fingerprint → Persona → Brief).</p>
+          </div>
+          <div class="card">
+            <strong>Step Navigator</strong>
+            <p>Stepper component ensures AE completes essential storytelling artifacts.</p>
+          </div>
+          <div class="card">
+            <strong>Summary Drawer</strong>
+            <p>Collapsible drawer showing stack snapshot, rule freshness, and recommended next steps.</p>
+          </div>
+        </div>
+      </div>
+      <h2>Direction #4 – Guided Playbook</h2>
+      <p class="details">
+        <span class="badge" style="background:#F9731620;color:#F97316;">Step-by-Step</span>
+        <span class="badge" style="background:#38BDF822;color:#38BDF8;">Low Cognitive Load</span>
+        <br/>
+        Perfect for new GTM reps or exec briefings—presents one task at a time with a clear sense of completion.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+

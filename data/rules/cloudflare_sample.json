@@ -1,0 +1,21 @@
+[
+  {
+    "id": "100000",
+    "name": "SQLi Prevention",
+    "description": "Blocks common SQL injection patterns",
+    "category": "injection",
+    "action": "block",
+    "severity": "high",
+    "expression": "http.request.uri.query contains \"' or '\""
+  },
+  {
+    "id": "100001",
+    "name": "Bot Scraper Shield",
+    "description": "Challenges automation scraping catalog pages",
+    "category": "bot",
+    "action": "challenge",
+    "severity": "medium",
+    "expression": "cf.bot_management.score < 10"
+  }
+]
+

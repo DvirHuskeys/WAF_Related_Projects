@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>WAF Security – Color Theme Visualizer</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --card: #1a1d24;
+      --text: #f5f6fb;
+      --muted: #8b92a7;
+      --border: #272b35;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 32px;
+    }
+    h1, h2, h3 { margin-top: 0; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+    }
+    .swatches {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .swatch {
+      border-radius: 12px;
+      padding: 16px;
+      min-height: 90px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: #fff;
+      font-weight: 600;
+    }
+    .swatch span {
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    .components {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+    }
+    .input {
+      border-radius: 12px;
+      padding: 12px 14px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.05);
+      color: inherit;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.1);
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+  </style>
+</head>
+<body>
+  <h1>WAF Security • Color Theme Options</h1>
+  <p>Each tile shows a full palette (primary/secondary/accent + semantic colors), sample components, and the brand personality it evokes.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h2>1. Midnight Intelligence</h2>
+      <p class="badge">Trust</p><p class="badge">Enterprise</p><p class="badge">Calm Focus</p>
+      <div class="swatches">
+        <div class="swatch" style="background:#2D7BFF">
+          Primary
+          <span>#2D7BFF</span>
+        </div>
+        <div class="swatch" style="background:#0BD3D3;color:#02141a">
+          Accent
+          <span>#0BD3D3</span>
+        </div>
+        <div class="swatch" style="background:#10131B;border:1px solid rgba(255,255,255,0.15);">
+          Background
+          <span>#10131B</span>
+        </div>
+        <div class="swatch" style="background:#35C46A">
+          Success
+          <span>#35C46A</span>
+        </div>
+        <div class="swatch" style="background:#F5A524;color:#1c1204">
+          Warning
+          <span>#F5A524</span>
+        </div>
+        <div class="swatch" style="background:#F75764">
+          Error
+          <span>#F75764</span>
+        </div>
+      </div>
+      <div class="components">
+        <button class="button" style="background:#2D7BFF;color:#fff;">Primary Action</button>
+        <button class="button" style="background:transparent;border:1px solid rgba(255,255,255,0.25);color:#fff;">Secondary Action</button>
+        <input class="input" placeholder="Search telemetry…" />
+      </div>
+      <p>Best for enterprise dashboards that need to whisper “proven and secure.”</p>
+    </div>
+
+    <div class="card">
+      <h2>2. Aurora Signals</h2>
+      <p class="badge">Energetic</p><p class="badge">Data Storytelling</p><p class="badge">Gradient Flair</p>
+      <div class="swatches">
+        <div class="swatch" style="background:linear-gradient(135deg,#FF007A,#FF8A00);">
+          Primary
+          <span>Grad (#FF007A→#FF8A00)</span>
+        </div>
+        <div class="swatch" style="background:#5CE1E6;color:#041012">
+          Accent
+          <span>#5CE1E6</span>
+        </div>
+        <div class="swatch" style="background:#0B0D14;border:1px solid rgba(255,255,255,0.15)">
+          Background
+          <span>#0B0D14</span>
+        </div>
+        <div class="swatch" style="background:#6EE7B7;color:#04120e">
+          Success
+          <span>#6EE7B7</span>
+        </div>
+        <div class="swatch" style="background:#FBBF24;color:#1a1002">
+          Warning
+          <span>#FBBF24</span>
+        </div>
+        <div class="swatch" style="background:#F87171">
+          Error
+          <span>#F87171</span>
+        </div>
+      </div>
+      <div class="components">
+        <button class="button" style="background:linear-gradient(135deg,#FF007A,#FF8A00);color:#fff;">Run GTM Radar</button>
+        <div class="input" style="border-color:#5CE1E6">CISO Cassandra Persona</div>
+        <div class="button" style="background:#5CE1E6;color:#031214;">View Rule Remix</div>
+      </div>
+      <p>Best when marketing, storytelling, and differentiating visually are paramount.</p>
+    </div>
+
+    <div class="card">
+      <h2>3. Slate Insight</h2>
+      <p class="badge">Minimal</p><p class="badge">Analytical</p><p class="badge">Calm Precision</p>
+      <div class="swatches">
+        <div class="swatch" style="background:#6C63FF">
+          Primary
+          <span>#6C63FF</span>
+        </div>
+        <div class="swatch" style="background:#4ADE80;color:#03200c">
+          Accent
+          <span>#4ADE80</span>
+        </div>
+        <div class="swatch" style="background:#111318;border:1px solid rgba(255,255,255,0.15)">
+          Background
+          <span>#111318</span>
+        </div>
+        <div class="swatch" style="background:#22D3EE;color:#02171c">
+          Info
+          <span>#22D3EE</span>
+        </div>
+        <div class="swatch" style="background:#FACC15;color:#211804">
+          Warning
+          <span>#FACC15</span>
+        </div>
+        <div class="swatch" style="background:#EF4444">
+          Error
+          <span>#EF4444</span>
+        </div>
+      </div>
+      <div class="components">
+        <button class="button" style="background:#6C63FF;color:#fff;">Add Domain</button>
+        <div class="input" style="border-color:#6C63FF;color:#fff;">example.com · Drift 0.81</div>
+        <div class="button" style="background:transparent;border:1px dashed rgba(255,255,255,0.3);color:#fff;">Export Report</div>
+      </div>
+      <p>Best for data-heavy control rooms where clarity and consistency trump flashiness.</p>
+    </div>
+  </div>
+</body>
+</html>
+
