@@ -39,6 +39,7 @@ def _detect_waf(domain: str) -> str:
                 return result[0].lower()
         except Exception:  # pragma: no cover - offline mode fallback
             pass
+    random.seed(domain)
     return random.choice(WAF_GUESSES)
 
 
@@ -47,5 +48,6 @@ def _heuristic_cdn(domain: str, candidate: str) -> str:
         return "cloudfront"
     if candidate == "cloudflare":
         return "cloudflare"
+    random.seed(f"{domain}-cdn")
     return random.choice(CDN_GUESSES)
 

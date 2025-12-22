@@ -1,0 +1,84 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>1</storyId>
+    <title>CSV Ingestion CLI</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-30</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/2-1-csv-ingestion-cli.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>As an operations teammate</asA>
+    <iWant>I want to run `python scripts/domain_enrich.py mylist.csv`</iWant>
+    <soThat>so that domain fingerprints populate DuckDB without touching code.</soThat>
+    <tasks>      <![CDATA[
+      - [ ] Implement Typer CLI (AC: 1–3)  
+  - [ ] Parse CSV via `csv.DictReader`, strip whitespace, deduplicate.  
+  - [ ] Validate domains (`urlparse` or regex).  
+  - [ ] Handle `--limit` and `--dry-run`.  
+- [ ] Integrate storage helper (AC: 1 & 2)  
+  - [ ] Use `backend/services/storage.get_connection()` to insert rows.  
+- [ ] Progress + summary (AC: 1 & 4)  
+  - [ ] Use Rich/typer echo for progress; print summary counts.  
+  - [ ] Emit warnings for skipped rows.  
+- [ ] Update docs (AC: 5)  
+  - [ ] README + Makefile entry describing command and flags.
+      ]]></tasks>
+  </story>
+
+  <acceptanceCriteria>      <![CDATA[
+      1. Given a CSV with a `domain` header, when I run the command (with optional `--limit`) then rows are validated, progress is printed, and valid domains are inserted/updated in `domain_enrichment`.
+2. Invalid domains (empty, malformed, duplicates) are skipped with warning messages; CLI exits with non-zero code only for fatal errors (missing file, DuckDB failure).
+3. CLI supports `--dry-run` (shows what would change) and `--limit N` to cap processing for quick tests.
+4. After completion, CLI prints summary counts (processed, inserted, skipped) and references the job log entry (Story 2.4).
+5. Documentation (README/Makefile) lists the command and flags.
+      ]]></acceptanceCriteria>
+
+  <artifacts>
+    <docs>      <doc path="docs/sprint-artifacts/2-1-csv-ingestion-cli.md" title="CSV Ingestion CLI" section="Story Draft" snippet="As an operations teammate, I want to run `python scripts/domain_enrich.py mylist.csv`, so that domain fingerprints populate DuckDB without touching code." />
+      <doc path="docs/epics.md" title="WAF Security - Epic Breakdown" section="Story 2.1" snippet="As an operations teammate, I want to run `python scripts/domain_enrich.py mylist.csv` so that domain fingerprints populate without editing code. **Acceptance Criteria** • **Given** a CSV with a `domain` header • **When** I run the command with optional `--limit` flag • **Then** the CLI validates the file, prints progress per domain, and writes rows into…" />
+      <doc path="docs/prd.md" title="Product Requirements Document" section="Executive Summary" snippet="WAF Security establishes a local-first “insight spine” that combines WAFtotal (vendor-agnostic managed-rule transparency) with GTM Radar (domain fingerprinting + storytelling) so every security, architecture, and GTM conversation starts with evidence instead of guesswork. By harvesting domain signals, normalizing Cloudflare/AWS/Akamai rule packs, and…" />
+      <doc path="docs/architecture.md" title="Architecture Specification" section="Project Context &amp; Goals" snippet="- **Deployment Reality:** Local-first sandbox meant to run entirely on a lone laptop (Streamlit UI, FastAPI services, DuckDB file storage). No cloud infra, no Postgres/React rewrite—lightweight scripts + HTML artifacts are sufficient so iteration stays fast. - **Primary Outcomes:** 1. Fingerprint domains (CLI + FastAPI) and persist results in DuckDB. 2.…" />
+      <doc path="docs/product-brief-WAF Security-2025-11-30.md" title="Product Brief" section="Executive Summary" snippet="WAF Security is building an internal “insight spine” that fuses two sibling ideas—**WAFtotal**, a vendor-agnostic managed-rule transparency experience, and **GTM Radar**, a domain fingerprinting + storytelling engine for sales and marketing teams. Together they deliver three promises: (1) decode any prospect’s WAF/CDN posture in minutes, (2) expose…" />
+      <doc path="docs/research-market-2025-11-30.md" title="Market/Domain Research" section="Executive Summary" snippet="- The global web application firewall (WAF) market is scaling aggressively: SNS Insider pegs it at **USD 6.35 B in 2023 with a path to USD 28.6 B by 2032 (18.2% CAGR)**, while ResearchAndMarkets estimates **USD 6.22 B in 2024 growing to USD 19.2 B by 2033 (13.3% CAGR)**, giving us a triangulated TAM envelope of USD 19–29 B within a decade. - [Source: SNS…" /></docs>
+    <code>      <code path="scripts/domain_enrich.py" kind="cli" symbol="main" lines="20-87" reason="Implements CSV ingestion pipeline for enrichment CLIs." />
+      <code path="backend/services/fingerprint.py" kind="service" symbol="detect_stack" lines="21-51" reason="Detects WAF/CDN stacks and scoring heuristics reused across Epic 2." />
+      <code path="backend/services/storage.py" kind="service" symbol="get_connection" lines="11-68" reason="Persists enrichment + rule sync results mentioned in pipeline stories." /></code>
+    <dependencies>      <dependency name="duckdb" version="1.1.3" scope="storage" />
+      <dependency name="typer" version="0.12.5" scope="cli" />
+      <dependency name="wafw00f" version="2.2.0" scope="security" />
+      <dependency name="rich" version="13.9.2" scope="cli" /></dependencies>
+  </artifacts>
+
+  <constraints>      <![CDATA[
+      - Align with architecture (#2 Data Model) so this CLI becomes the default ingestion path before any automation exists.  
+- Reuse fingerprinting helper from Story 2.2 (call `fingerprint.detect_stack`).  
+- Keep network calls optional (respect `USE_WAFW00F` flag); offline fallback still writes random heuristics.
+
+### Project Structure Notes
+
+- Place in `scripts/` next to seed/init scripts.  
+- Provide entry point in README and `Makefile` target `run-domain-enrich`.  
+- No conflicting modules detected.
+
+### References
+
+- [Source: docs/epics.md#story-21-csv-ingestion-cli]  
+- [Source: docs/prd.md#functional-requirements FR1, FR21]  
+- [Source: docs/architecture.md#2-architecture-overview]
+      ]]></constraints>
+  <interfaces>      <interface name="domain_enrich CLI" kind="CLI command" signature="python scripts/domain_enrich.py data/samples/domains.csv [--limit]" path="scripts/domain_enrich.py" /></interfaces>
+  <tests>
+    <standards>      <![CDATA[
+      - [x] domain_enrich.py run Command: `python scripts/domain_enrich.py data/samples/domains.csv` Result: Generated four enriched records in DuckDB, offline heuristics used. - [x] rule_sync/run.py Command: `python scripts/rule_sync/run.py cloudflare --source data/rules/cloudflare_sample.json` Result: Loaded two sample managed rules. - [x] API schema test…
+      ]]></standards>
+    <locations>      <![CDATA[
+      tests/, scripts/, ui/
+      ]]></locations>
+    <ideas>      <![CDATA[
+      AC1: Verify Given a CSV with a `domain` header, when I run the command (with optional `--limit`) then rows are validated, progress is printed, and valid domains are inserted/updated in `domain_enrichment`.; AC2: Verify Invalid domains (empty, malformed, duplicates) are skipped with warning messages; CLI exits with non-zero code only for fatal errors (missing file, DuckDB failure).; AC3: Verify CLI supports `--dry-run` (shows what would change) and `--limit N` to cap processing for quick tests.; AC4: Verify After completion, CLI prints summary counts (processed, inserted, skipped) and references the job log entry (Story 2.4).; AC5: Verify Documentation (README/Makefile) lists the command and flags.
+      ]]></ideas>
+  </tests>
+</story-context>

@@ -1,0 +1,24 @@
+# Environment & tooling
+.venv/
+.env
+.env.*
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.DS_Store
+.idea/
+.vscode/
+
+# Streamlit runtime artifacts
+.streamlit/*.json
+.streamlit/state.toml
+
+# Data/exports generated locally
+/data/warehouse.db
+/data/exports/
+/exports/
+/logs/
+
+# Reports and build outputs
+reports/
+artifacts/

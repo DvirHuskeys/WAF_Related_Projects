@@ -1,6 +1,6 @@
 # Story 2.1: CSV Ingestion CLI
 
-Status: drafted
+Status: review
 
 ## Story
 
@@ -18,17 +18,16 @@ so that domain fingerprints populate DuckDB without touching code.
 
 ## Tasks / Subtasks
 
-- [ ] Implement Typer CLI (AC: 1–3)  
-  - [ ] Parse CSV via `csv.DictReader`, strip whitespace, deduplicate.  
-  - [ ] Validate domains (`urlparse` or regex).  
-  - [ ] Handle `--limit` and `--dry-run`.  
-- [ ] Integrate storage helper (AC: 1 & 2)  
-  - [ ] Use `backend/services/storage.get_connection()` to insert rows.  
-- [ ] Progress + summary (AC: 1 & 4)  
-  - [ ] Use Rich/typer echo for progress; print summary counts.  
-  - [ ] Emit warnings for skipped rows.  
-- [ ] Update docs (AC: 5)  
-  - [ ] README + Makefile entry describing command and flags.
+- [x] Implement Typer CLI (AC: 1–3)  
+  - [x] Parse CSV via `csv.DictReader`, strip whitespace, deduplicate.  
+  - [x] Validate domains via regex and respect `--limit` / `--dry-run`.  
+- [x] Integrate storage helper (AC: 1 & 2)  
+  - [x] Use `backend/services/storage.get_connection()` to insert rows with stack/scores.  
+- [x] Progress + summary (AC: 1 & 4)  
+  - [x] Echo progress per domain and print summary counts referencing a job id.  
+  - [x] Emit warnings for skipped rows.  
+- [x] Update docs (AC: 5)  
+  - [x] README + Makefile entry describing command and flags.
 
 ## Dev Notes
 
@@ -52,15 +51,33 @@ so that domain fingerprints populate DuckDB without touching code.
 
 ### Context Reference
 
-<!-- story-context XML placeholder -->
+- docs/sprint-artifacts/2-1-csv-ingestion-cli.context.xml
+
 
 ### Agent Model Used
 
-_TBD during implementation_
+GPT-5.1 Codex
 
 ### Debug Log References
 
+- 2025-11-30: Rebuilt `scripts/domain_enrich.py` into a Typer CLI with validation, `--limit`, `--dry-run`, and job summary logging.
+- 2025-11-30: Added helper functions/tests for domain validation & CSV loading, plus new Makefile target and README docs.
+- 2025-11-30: Verified `python scripts/domain_enrich.py data/samples/domains.csv --dry-run` and a real ingestion run; finished with `make test`.
+
 ### Completion Notes List
+
+- CLI now skips invalid/duplicate domains with warnings, supports dry runs, and prints job references + next steps.
+- README documents command usage and `make domain-enrich` shortcut; bootstrap flow includes the new step.
+- Added regression tests for domain validation and CSV parsing.
 
 ### File List
 
+- `scripts/domain_enrich.py`
+- `tests/test_domain_enrich.py`
+- `README.md`
+- `Makefile`
+- `docs/sprint-artifacts/sprint-status.yaml`
+
+## Change Log
+
+- 2025-11-30: Implemented CSV ingestion CLI improvements plus docs/tests; story ready for review.

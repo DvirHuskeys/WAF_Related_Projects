@@ -1,0 +1,35 @@
+persona_hooks:
+  ae:
+    - id: drift_high
+      score: config_drift
+      min: 0.7
+      title: "Lead with configuration coherence"
+      description: "Highlight drift findings and position our playbook to restore alignment."
+    - id: downtime_high
+      score: downtime_risk
+      min: 0.6
+      title: "Stress continuity risk"
+      description: "Remind them that automation and runbooks prevent surprise outages."
+    - id: default
+      score: priority_index
+      min: 0.0
+      title: "Show unified visibility"
+      description: "Pitch the insight spine as the fastest way to prep for GTM conversations."
+  ciso:
+    - id: attack_surface_high
+      score: attack_surface
+      min: 0.55
+      title: "Examine rule coverage gaps"
+      description: "Use Rule Studio to compare vendors and expose blind spots."
+    - id: default
+      score: priority_index
+      min: 0.0
+      title: "Benchmark rule philosophy"
+      description: "Contrast vendor posture and show how WAFtotal gives shared context."
+  winston:
+    - id: config_medium
+      score: config_drift
+      min: 0.5
+      title: "Surface config debt"
+      description: "Map drift findings to concrete remediation tasks."
+

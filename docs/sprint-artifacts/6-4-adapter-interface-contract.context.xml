@@ -1,0 +1,77 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>6</epicId>
+    <storyId>4</storyId>
+    <title>Adapter Interface Contract</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-30</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/6-4-adapter-interface-contract.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>As future developers (or partners)</asA>
+    <iWant></iWant>
+    <soThat></soThat>
+    <tasks>      <![CDATA[
+      - [ ] Documentation (AC: 1 & 4)  
+  - [ ] Write `docs/adapters.md` with interface description + examples.  
+  - [ ] Update README with quick instructions.  
+- [ ] Template file (AC: 2)  
+  - [ ] Add `adapter_template.py` with comments guiding implementers.  
+- [ ] CLI discovery (AC: 3)  
+  - [ ] Add `--list` flag and dynamic discovery logic (glob modules).  
+- [ ] Source metadata guidance (AC: 5)  
+  - [ ] Emphasize setting `source` and `synced_at`.
+      ]]></tasks>
+  </story>
+
+  <acceptanceCriteria>      <![CDATA[
+      1. Create `docs/adapters.md` (or similar) explaining the adapter interface: required function signature (`load_rules(Path) -> List[dict]`), required keys, metadata expectations, error handling, logging guidelines.
+2. Provide `scripts/rule_sync/adapter_template.py` that developers can copy to create new adapters.
+3. CLI automatically discovers adapters in `scripts/rule_sync/` (maybe via entrypoint list or glob) and lists available vendors when `--list` is passed.
+4. README references the doc/template and instructs how to add vendor exports.
+5. Contract includes guidance on storing source/synced_at fields to satisfy Story 4.4.
+      ]]></acceptanceCriteria>
+
+  <artifacts>
+    <docs>      <doc path="docs/sprint-artifacts/6-4-adapter-interface-contract.md" title="Adapter Interface Contract" section="Story Draft" snippet="As future developers (or partners), we want a documented adapter contract and template, so new vendor rule packs can be added quickly without reverse-engineering existing code." />
+      <doc path="docs/epics.md" title="WAF Security - Epic Breakdown" section="Story 6.4" snippet="As future developers, we want a documented adapter protocol so new vendors can be added quickly. **Acceptance Criteria** • **Given** I read `docs/adapters.md` • **When** I implement a new adapter • **Then** the doc clearly states required functions, fields, validation, and how to register it in CLI + UI **Prerequisites** Story 2.3 **Technical Notes** Covers…" />
+      <doc path="docs/prd.md" title="Product Requirements Document" section="Executive Summary" snippet="WAF Security establishes a local-first “insight spine” that combines WAFtotal (vendor-agnostic managed-rule transparency) with GTM Radar (domain fingerprinting + storytelling) so every security, architecture, and GTM conversation starts with evidence instead of guesswork. By harvesting domain signals, normalizing Cloudflare/AWS/Akamai rule packs, and…" />
+      <doc path="docs/architecture.md" title="Architecture Specification" section="Project Context &amp; Goals" snippet="- **Deployment Reality:** Local-first sandbox meant to run entirely on a lone laptop (Streamlit UI, FastAPI services, DuckDB file storage). No cloud infra, no Postgres/React rewrite—lightweight scripts + HTML artifacts are sufficient so iteration stays fast. - **Primary Outcomes:** 1. Fingerprint domains (CLI + FastAPI) and persist results in DuckDB. 2.…" />
+      <doc path="docs/product-brief-WAF Security-2025-11-30.md" title="Product Brief" section="Executive Summary" snippet="WAF Security is building an internal “insight spine” that fuses two sibling ideas—**WAFtotal**, a vendor-agnostic managed-rule transparency experience, and **GTM Radar**, a domain fingerprinting + storytelling engine for sales and marketing teams. Together they deliver three promises: (1) decode any prospect’s WAF/CDN posture in minutes, (2) expose…" />
+      <doc path="docs/research-market-2025-11-30.md" title="Market/Domain Research" section="Executive Summary" snippet="- The global web application firewall (WAF) market is scaling aggressively: SNS Insider pegs it at **USD 6.35 B in 2023 with a path to USD 28.6 B by 2032 (18.2% CAGR)**, while ResearchAndMarkets estimates **USD 6.22 B in 2024 growing to USD 19.2 B by 2033 (13.3% CAGR)**, giving us a triangulated TAM envelope of USD 19–29 B within a decade. - [Source: SNS…" /></docs>
+    <code>      <code path="backend/main.py" kind="api" symbol="FastAPI router" lines="1-30" reason="Base API endpoints securing admin/governance capabilities." />
+      <code path="backend/services/storage.py" kind="service" symbol="audit tables" lines="18-47" reason="Holds configuration/audit data leveraged by Epic 6." />
+      <code path="scripts/rule_sync/run.py" kind="cli" symbol="adapter controller" lines="1-120" reason="Adapter orchestration referenced by configuration/admin stories." /></code>
+    <dependencies>      <dependency name="fastapi" version="0.115.2" scope="api" />
+      <dependency name="uvicorn" version="0.30.6" scope="api" />
+      <dependency name="duckdb" version="1.1.3" scope="storage" /></dependencies>
+  </artifacts>
+
+  <constraints>      <![CDATA[
+      - Supports FR20; reduces friction when adding AWS/Akamai.  
+- Template should mention best practices (validation, logging).
+
+### Project Structure Notes
+
+- Keep templates outside runtime modules to avoid importing them accidentally.
+
+### References
+
+- [Source: docs/epics.md#story-64-adapter-interface-contract]  
+- [Source: docs/prd.md#functional-requirements FR20]
+      ]]></constraints>
+  <interfaces>      <interface name="FastAPI admin endpoints" kind="REST endpoint" signature="GET /personas" path="backend/main.py" /></interfaces>
+  <tests>
+    <standards>      <![CDATA[
+      - [x] domain_enrich.py run Command: `python scripts/domain_enrich.py data/samples/domains.csv` Result: Generated four enriched records in DuckDB, offline heuristics used. - [x] rule_sync/run.py Command: `python scripts/rule_sync/run.py cloudflare --source data/rules/cloudflare_sample.json` Result: Loaded two sample managed rules. - [x] API schema test…
+      ]]></standards>
+    <locations>      <![CDATA[
+      tests/, scripts/, ui/
+      ]]></locations>
+    <ideas>      <![CDATA[
+      AC1: Verify Create `docs/adapters.md` (or similar) explaining the adapter interface: required function signature (`load_rules(Path) -> List[dict]`), required keys, metadata expectations, error handling, logging guidelines.; AC2: Verify Provide `scripts/rule_sync/adapter_template.py` that developers can copy to create new adapters.; AC3: Verify CLI automatically discovers adapters in `scripts/rule_sync/` (maybe via entrypoint list or glob) and lists available vendors when `--list` is passed.; AC4: Verify README references the doc/template and instructs how to add vendor exports.; AC5: Verify Contract includes guidance on storing source/synced_at fields to satisfy Story 4.4.
+      ]]></ideas>
+  </tests>
+</story-context>

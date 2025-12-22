@@ -1,0 +1,32 @@
+{
+  "Traffic Overview": {
+    "success": true,
+    "rows": [],
+    "columns": [],
+    "row_count": 0
+  },
+  "Top Attacking IPs": {
+    "success": true,
+    "rows": [],
+    "columns": [],
+    "row_count": 0
+  },
+  "Most Targeted Endpoints": {
+    "success": true,
+    "rows": [],
+    "columns": [],
+    "row_count": 0
+  },
+  "Attack Type Breakdown": {
+    "success": true,
+    "rows": [],
+    "columns": [],
+    "row_count": 0
+  },
+  "Geographic Distribution": {
+    "success": true,
+    "rows": [],
+    "columns": [],
+    "row_count": 0
+  }
+}

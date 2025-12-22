@@ -1,0 +1,78 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>6</epicId>
+    <storyId>3</storyId>
+    <title>Audit Logging</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-30</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/6-3-audit-logging.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>As compliance-minded users</asA>
+    <iWant>I want every enrichment run, rule sync, persona copy, annotation, or export logged</iWant>
+    <soThat></soThat>
+    <tasks>      <![CDATA[
+      - [ ] Table + helper (AC: 1)  
+  - [ ] Update init script to create `activity_log`.  
+  - [ ] Add `backend/services/logging.log_activity`.  
+- [ ] Wire actions (AC: 2–3)  
+  - [ ] Update CLIs and UI components to call logger.  
+  - [ ] Include helpful `details` payloads (counts, rule IDs, etc.).  
+- [ ] Viewing/export (AC: 4)  
+  - [ ] Admin tab or CLI command to filter/export logs.  
+- [ ] Documentation (AC: 5)  
+  - [ ] README section for audit logging.
+      ]]></tasks>
+  </story>
+
+  <acceptanceCriteria>      <![CDATA[
+      1. Introduce an `activity_log` DuckDB table with columns: `id`, `timestamp`, `role`, `user_identifier` (optional), `action` (enum), `target` (domain/rule/feature), `details` (JSON).
+2. Every key action (enrichment CLI, rule sync CLI, persona copy, snippet copy, annotation add/edit/delete, adapter changes, board brief export) calls `log_activity(...)`.
+3. Failure events (RBAC denials, CLI errors) are also logged with status `failed`.
+4. CLI or Streamlit admin page can export/view logs (CSV/Parquet) with filters.
+5. README documents how logging works and where data lives.
+      ]]></acceptanceCriteria>
+
+  <artifacts>
+    <docs>      <doc path="docs/sprint-artifacts/6-3-audit-logging.md" title="Audit Logging" section="Story Draft" snippet="As compliance-minded users, I want every enrichment run, rule sync, persona copy, annotation, or export logged, so we can review who did what and detect potential misuse." />
+      <doc path="docs/epics.md" title="WAF Security - Epic Breakdown" section="Story 6.3" snippet="As compliance-minded users, I want every enrichment run, rule sync, persona copy, annotation, or export logged so we can review later. **Acceptance Criteria** • **Given** any of those actions occur • **When** they complete • **Then** an `activity_log` DuckDB table row captures timestamp, actor, action, metadata, and result **Prerequisites** Relevant stories…" />
+      <doc path="docs/prd.md" title="Product Requirements Document" section="Executive Summary" snippet="WAF Security establishes a local-first “insight spine” that combines WAFtotal (vendor-agnostic managed-rule transparency) with GTM Radar (domain fingerprinting + storytelling) so every security, architecture, and GTM conversation starts with evidence instead of guesswork. By harvesting domain signals, normalizing Cloudflare/AWS/Akamai rule packs, and…" />
+      <doc path="docs/architecture.md" title="Architecture Specification" section="Project Context &amp; Goals" snippet="- **Deployment Reality:** Local-first sandbox meant to run entirely on a lone laptop (Streamlit UI, FastAPI services, DuckDB file storage). No cloud infra, no Postgres/React rewrite—lightweight scripts + HTML artifacts are sufficient so iteration stays fast. - **Primary Outcomes:** 1. Fingerprint domains (CLI + FastAPI) and persist results in DuckDB. 2.…" />
+      <doc path="docs/product-brief-WAF Security-2025-11-30.md" title="Product Brief" section="Executive Summary" snippet="WAF Security is building an internal “insight spine” that fuses two sibling ideas—**WAFtotal**, a vendor-agnostic managed-rule transparency experience, and **GTM Radar**, a domain fingerprinting + storytelling engine for sales and marketing teams. Together they deliver three promises: (1) decode any prospect’s WAF/CDN posture in minutes, (2) expose…" />
+      <doc path="docs/research-market-2025-11-30.md" title="Market/Domain Research" section="Executive Summary" snippet="- The global web application firewall (WAF) market is scaling aggressively: SNS Insider pegs it at **USD 6.35 B in 2023 with a path to USD 28.6 B by 2032 (18.2% CAGR)**, while ResearchAndMarkets estimates **USD 6.22 B in 2024 growing to USD 19.2 B by 2033 (13.3% CAGR)**, giving us a triangulated TAM envelope of USD 19–29 B within a decade. - [Source: SNS…" /></docs>
+    <code>      <code path="backend/main.py" kind="api" symbol="FastAPI router" lines="1-30" reason="Base API endpoints securing admin/governance capabilities." />
+      <code path="backend/services/storage.py" kind="service" symbol="audit tables" lines="18-47" reason="Holds configuration/audit data leveraged by Epic 6." />
+      <code path="scripts/rule_sync/run.py" kind="cli" symbol="adapter controller" lines="1-120" reason="Adapter orchestration referenced by configuration/admin stories." /></code>
+    <dependencies>      <dependency name="fastapi" version="0.115.2" scope="api" />
+      <dependency name="uvicorn" version="0.30.6" scope="api" />
+      <dependency name="duckdb" version="1.1.3" scope="storage" /></dependencies>
+  </artifacts>
+
+  <constraints>      <![CDATA[
+      - Aligns with FR17; keeps system auditable even in local-first mode.  
+- Consider adding `session_id` for long-running tasks later.
+
+### Project Structure Notes
+
+- Logging helper shared with Story 3.3 (persona usage) to avoid duplication.
+
+### References
+
+- [Source: docs/epics.md#story-63-audit-logging]  
+- [Source: docs/prd.md#functional-requirements FR17]
+      ]]></constraints>
+  <interfaces>      <interface name="FastAPI admin endpoints" kind="REST endpoint" signature="GET /personas" path="backend/main.py" /></interfaces>
+  <tests>
+    <standards>      <![CDATA[
+      - [x] domain_enrich.py run Command: `python scripts/domain_enrich.py data/samples/domains.csv` Result: Generated four enriched records in DuckDB, offline heuristics used. - [x] rule_sync/run.py Command: `python scripts/rule_sync/run.py cloudflare --source data/rules/cloudflare_sample.json` Result: Loaded two sample managed rules. - [x] API schema test…
+      ]]></standards>
+    <locations>      <![CDATA[
+      tests/, scripts/, ui/
+      ]]></locations>
+    <ideas>      <![CDATA[
+      AC1: Verify Introduce an `activity_log` DuckDB table with columns: `id`, `timestamp`, `role`, `user_identifier` (optional), `action` (enum), `target` (domain/rule/feature), `details` (JSON).; AC2: Verify Every key action (enrichment CLI, rule sync CLI, persona copy, snippet copy, annotation add/edit/delete, adapter changes, board brief export) calls `log_activity(...)`.; AC3: Verify Failure events (RBAC denials, CLI errors) are also logged with status `failed`.; AC4: Verify CLI or Streamlit admin page can export/view logs (CSV/Parquet) with filters.; AC5: Verify README documents how logging works and where data lives.
+      ]]></ideas>
+  </tests>
+</story-context>

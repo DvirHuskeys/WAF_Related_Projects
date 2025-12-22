@@ -1,0 +1,79 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>6</epicId>
+    <storyId>1</storyId>
+    <title>Adapter Configuration Panel</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-30</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/6-1-adapter-configuration-panel.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>As administrators</asA>
+    <iWant></iWant>
+    <soThat></soThat>
+    <tasks>      <![CDATA[
+      - [ ] Config loader (AC: 1–2)  
+  - [ ] Create `config/adapters.yaml` structure (adapter id, enabled bool, credentials).  
+  - [ ] Provide helper to read/write config atomically.  
+- [ ] Streamlit admin UI (AC: 1,3,4)  
+  - [ ] Add new page/section with adapter cards.  
+  - [ ] Mask secrets and enforce role env (e.g., `ROLE=admin`).  
+- [ ] CLI integration (AC: 2)  
+  - [ ] Rule sync CLI reads config; disabled adapters skipped with info log.  
+- [ ] Docs (AC: 5)  
+  - [ ] README instructions for editing adapters, storing credentials, overriding via `--vendor`.
+      ]]></tasks>
+  </story>
+
+  <acceptanceCriteria>      <![CDATA[
+      1. Streamlit Admin tab shows a table/list of available adapters (`cloudflare`, `aws_waf`, etc.) with toggle (enabled/disabled), credential input (text/password), and status indicator (last sync).
+2. Changes persist to `config/adapters.yaml` (or `.env`) and are respected by the enrichment/rule-sync CLIs—disabled adapters are skipped unless `--vendor` explicitly overrides.
+3. Secrets are masked in UI; toggling “Show” reveals them temporarily.
+4. Access to Admin tab is restricted by a role flag/env (basic RBAC per Story 6.2). Unauthorized users see “Access denied.”
+5. README documents how to add new adapters and manage the config file.
+      ]]></acceptanceCriteria>
+
+  <artifacts>
+    <docs>      <doc path="docs/sprint-artifacts/6-1-adapter-configuration-panel.md" title="Adapter Configuration Panel" section="Story Draft" snippet="As administrators, we want an “Adapter Configuration” page that lists all vendor adapters with toggles and credential fields, so we can control which vendors run in the sandbox and manage secrets without editing code." />
+      <doc path="docs/epics.md" title="WAF Security - Epic Breakdown" section="Story 6.1" snippet="As administrators, we want a Streamlit admin page that lists all vendor adapters with toggle + credential fields so we can control what runs. **Acceptance Criteria** • **Given** I open “Admin” tab • **When** I flip a toggle or edit API key • **Then** settings persist to `config/adapters.yaml`, CLIs respect them, and UI badges show active adapters…" />
+      <doc path="docs/prd.md" title="Product Requirements Document" section="Executive Summary" snippet="WAF Security establishes a local-first “insight spine” that combines WAFtotal (vendor-agnostic managed-rule transparency) with GTM Radar (domain fingerprinting + storytelling) so every security, architecture, and GTM conversation starts with evidence instead of guesswork. By harvesting domain signals, normalizing Cloudflare/AWS/Akamai rule packs, and…" />
+      <doc path="docs/architecture.md" title="Architecture Specification" section="Project Context &amp; Goals" snippet="- **Deployment Reality:** Local-first sandbox meant to run entirely on a lone laptop (Streamlit UI, FastAPI services, DuckDB file storage). No cloud infra, no Postgres/React rewrite—lightweight scripts + HTML artifacts are sufficient so iteration stays fast. - **Primary Outcomes:** 1. Fingerprint domains (CLI + FastAPI) and persist results in DuckDB. 2.…" />
+      <doc path="docs/product-brief-WAF Security-2025-11-30.md" title="Product Brief" section="Executive Summary" snippet="WAF Security is building an internal “insight spine” that fuses two sibling ideas—**WAFtotal**, a vendor-agnostic managed-rule transparency experience, and **GTM Radar**, a domain fingerprinting + storytelling engine for sales and marketing teams. Together they deliver three promises: (1) decode any prospect’s WAF/CDN posture in minutes, (2) expose…" />
+      <doc path="docs/research-market-2025-11-30.md" title="Market/Domain Research" section="Executive Summary" snippet="- The global web application firewall (WAF) market is scaling aggressively: SNS Insider pegs it at **USD 6.35 B in 2023 with a path to USD 28.6 B by 2032 (18.2% CAGR)**, while ResearchAndMarkets estimates **USD 6.22 B in 2024 growing to USD 19.2 B by 2033 (13.3% CAGR)**, giving us a triangulated TAM envelope of USD 19–29 B within a decade. - [Source: SNS…" /></docs>
+    <code>      <code path="backend/main.py" kind="api" symbol="FastAPI router" lines="1-30" reason="Base API endpoints securing admin/governance capabilities." />
+      <code path="backend/services/storage.py" kind="service" symbol="audit tables" lines="18-47" reason="Holds configuration/audit data leveraged by Epic 6." />
+      <code path="scripts/rule_sync/run.py" kind="cli" symbol="adapter controller" lines="1-120" reason="Adapter orchestration referenced by configuration/admin stories." /></code>
+    <dependencies>      <dependency name="fastapi" version="0.115.2" scope="api" />
+      <dependency name="uvicorn" version="0.30.6" scope="api" />
+      <dependency name="duckdb" version="1.1.3" scope="storage" /></dependencies>
+  </artifacts>
+
+  <constraints>      <![CDATA[
+      - Ties to PRD FR15; keep config format simple for local-first environment.  
+- Consider storing secrets in `.env` (with `dotenv`) while structural settings remain in YAML.
+
+### Project Structure Notes
+
+- Helpers in `backend/services/config.py`; UI in `ui/admin.py`.  
+- Ensure config file is gitignored but sample file (`adapters.example.yaml`) exists.
+
+### References
+
+- [Source: docs/epics.md#story-61-adapter-configuration-panel]  
+- [Source: docs/prd.md#functional-requirements FR15]
+      ]]></constraints>
+  <interfaces>      <interface name="FastAPI admin endpoints" kind="REST endpoint" signature="GET /personas" path="backend/main.py" /></interfaces>
+  <tests>
+    <standards>      <![CDATA[
+      - [x] domain_enrich.py run Command: `python scripts/domain_enrich.py data/samples/domains.csv` Result: Generated four enriched records in DuckDB, offline heuristics used. - [x] rule_sync/run.py Command: `python scripts/rule_sync/run.py cloudflare --source data/rules/cloudflare_sample.json` Result: Loaded two sample managed rules. - [x] API schema test…
+      ]]></standards>
+    <locations>      <![CDATA[
+      tests/, scripts/, ui/
+      ]]></locations>
+    <ideas>      <![CDATA[
+      AC1: Verify Streamlit Admin tab shows a table/list of available adapters (`cloudflare`, `aws_waf`, etc.) with toggle (enabled/disabled), credential input (text/password), and status indicator (last sync).; AC2: Verify Changes persist to `config/adapters.yaml` (or `.env`) and are respected by the enrichment/rule-sync CLIs—disabled adapters are skipped unless `--vendor` explicitly overrides.; AC3: Verify Secrets are masked in UI; toggling “Show” reveals them temporarily.; AC4: Verify Access to Admin tab is restricted by a role flag/env (basic RBAC per Story 6.2). Unauthorized users see “Access denied.”; AC5: Verify README documents how to add new adapters and manage the config file.
+      ]]></ideas>
+  </tests>
+</story-context>

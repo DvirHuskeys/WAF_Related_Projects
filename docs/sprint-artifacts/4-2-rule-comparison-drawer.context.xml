@@ -1,0 +1,81 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>4</epicId>
+    <storyId>2</storyId>
+    <title>Rule Comparison Drawer</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-30</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/4-2-rule-comparison-drawer.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>As CISO Cassandra</asA>
+    <iWant>I want to select two vendor rules and view differences side-by-side in a drawer</iWant>
+    <soThat></soThat>
+    <tasks>      <![CDATA[
+      - [ ] Drawer component (AC: 1–5)  
+  - [ ] Implement Streamlit drawer using `st.sidebar` or custom CSS/HTML hack (since Streamlit lacks native drawer).  
+  - [ ] Display fields side-by-side with color-coded differences.  
+- [ ] Selection logic (AC: 1–2)  
+  - [ ] Ensure only two rules are compared; prompt user if more selected.  
+- [ ] Copy summary (AC: 3)  
+  - [ ] Generate narrative using diff helper; add copy button + toast.  
+- [ ] Tabs/sections (AC: 4)  
+  - [ ] “Diff”, “Details”, “Notes” sections within drawer.  
+- [ ] Accessibility (AC: 5)  
+  - [ ] Provide ESC close instructions; ensure keyboard focus moves into drawer and returns on close.
+      ]]></tasks>
+  </story>
+
+  <acceptanceCriteria>      <![CDATA[
+      1. From Rule Explorer (Story 4.1), selecting ≥2 rules and clicking “Compare” opens a right-side drawer showing: vendor names, detection patterns, mitigation descriptions, severity, freshness, and a summary sentence describing the delta.
+2. Drawer supports comparing exactly two rules; selecting more prompts user to pick which two.
+3. Copy-to-clipboard button exports the diff summary (“Cloudflare Rule 100000 blocks SQLi via query parser; AWS rule lacks freshness, last synced 45d ago”).
+4. Drawer includes tabs or sections: “Diff Summary”, “Details”, “Notes” (ties into Story 4.3).
+5. UI respects UX guidelines (Midnight Intelligence theme, accessible focus order) and closes via ESC or [x].
+      ]]></acceptanceCriteria>
+
+  <artifacts>
+    <docs>      <doc path="docs/sprint-artifacts/4-2-rule-comparison-drawer.md" title="Rule Comparison Drawer" section="Story Draft" snippet="As CISO Cassandra, I want to select two vendor rules and view differences side-by-side in a drawer, so I can explain gaps and portability issues during renewals or migrations." />
+      <doc path="docs/epics.md" title="WAF Security - Epic Breakdown" section="Story 4.2" snippet="As CISO Cassandra, I want to select two rules (e.g., Cloudflare vs AWS) and view differences side-by-side so I can explain gaps. **Acceptance Criteria** • **Given** I select two rows • **When** I click “Compare” • **Then** a right-hand drawer opens showing detection pattern, mitigation, severity, metadata, freshness, and summary sentence of differences…" />
+      <doc path="docs/prd.md" title="Product Requirements Document" section="Executive Summary" snippet="WAF Security establishes a local-first “insight spine” that combines WAFtotal (vendor-agnostic managed-rule transparency) with GTM Radar (domain fingerprinting + storytelling) so every security, architecture, and GTM conversation starts with evidence instead of guesswork. By harvesting domain signals, normalizing Cloudflare/AWS/Akamai rule packs, and…" />
+      <doc path="docs/architecture.md" title="Architecture Specification" section="Project Context &amp; Goals" snippet="- **Deployment Reality:** Local-first sandbox meant to run entirely on a lone laptop (Streamlit UI, FastAPI services, DuckDB file storage). No cloud infra, no Postgres/React rewrite—lightweight scripts + HTML artifacts are sufficient so iteration stays fast. - **Primary Outcomes:** 1. Fingerprint domains (CLI + FastAPI) and persist results in DuckDB. 2.…" />
+      <doc path="docs/product-brief-WAF Security-2025-11-30.md" title="Product Brief" section="Executive Summary" snippet="WAF Security is building an internal “insight spine” that fuses two sibling ideas—**WAFtotal**, a vendor-agnostic managed-rule transparency experience, and **GTM Radar**, a domain fingerprinting + storytelling engine for sales and marketing teams. Together they deliver three promises: (1) decode any prospect’s WAF/CDN posture in minutes, (2) expose…" />
+      <doc path="docs/research-market-2025-11-30.md" title="Market/Domain Research" section="Executive Summary" snippet="- The global web application firewall (WAF) market is scaling aggressively: SNS Insider pegs it at **USD 6.35 B in 2023 with a path to USD 28.6 B by 2032 (18.2% CAGR)**, while ResearchAndMarkets estimates **USD 6.22 B in 2024 growing to USD 19.2 B by 2033 (13.3% CAGR)**, giving us a triangulated TAM envelope of USD 19–29 B within a decade. - [Source: SNS…" /></docs>
+    <code>      <code path="scripts/rule_sync/run.py" kind="cli" symbol="main entry" lines="1-120" reason="Normalizes vendor rule packs for Rule Transparency Studio stories." />
+      <code path="scripts/rule_sync/cloudflare.py" kind="adapter" symbol="load_rules" lines="1-120" reason="Concrete adapter showing how vendor rules are parsed and exposed." />
+      <code path="backend/services/storage.py" kind="service" symbol="managed_rules schema" lines="18-47" reason="Stores normalized rules used by grid/comparison/annotation flows." /></code>
+    <dependencies>      <dependency name="duckdb" version="1.1.3" scope="storage" />
+      <dependency name="pandas" version="2.2.3" scope="data" />
+      <dependency name="python-whois" version="0.8.0" scope="intel" /></dependencies>
+  </artifacts>
+
+  <constraints>      <![CDATA[
+      - Diff summary should highlight detection/mitigation differences and freshness warnings from Story 2.5.  
+- Consider using Python `difflib` for detection pattern diff (optional).  
+- Notes tab will connect to Story 4.3 annotations.
+
+### Project Structure Notes
+
+- Drawer logic can live in `ui/components/rule_drawer.py`.  
+- Keep state (selected rule IDs, tab) in `st.session_state`.
+
+### References
+
+- [Source: docs/epics.md#story-42-rule-comparison-drawer]  
+- [Source: docs/ux-design-specification.md#core-experience-principles]
+      ]]></constraints>
+  <interfaces>      <interface name="rule_sync adapter runner" kind="CLI command" signature="python scripts/rule_sync/run.py cloudflare --source data/rules/cloudflare_sample.json" path="scripts/rule_sync/run.py" /></interfaces>
+  <tests>
+    <standards>      <![CDATA[
+      - [x] domain_enrich.py run Command: `python scripts/domain_enrich.py data/samples/domains.csv` Result: Generated four enriched records in DuckDB, offline heuristics used. - [x] rule_sync/run.py Command: `python scripts/rule_sync/run.py cloudflare --source data/rules/cloudflare_sample.json` Result: Loaded two sample managed rules. - [x] API schema test…
+      ]]></standards>
+    <locations>      <![CDATA[
+      tests/, scripts/, ui/
+      ]]></locations>
+    <ideas>      <![CDATA[
+      AC1: Verify From Rule Explorer (Story 4.1), selecting ≥2 rules and clicking “Compare” opens a right-side drawer showing: vendor names, detection patterns, mitigation descriptions, severity, freshness, and a summary sentence describing the delta.; AC2: Verify Drawer supports comparing exactly two rules; selecting more prompts user to pick which two.; AC3: Verify Copy-to-clipboard button exports the diff summary (“Cloudflare Rule 100000 blocks SQLi via query parser; AWS rule lacks freshness, last synced 45d ago”).; AC4: Verify Drawer includes tabs or sections: “Diff Summary”, “Details”, “Notes” (ties into Story 4.3).; AC5: Verify UI respects UX guidelines (Midnight Intelligence theme, accessible focus order) and closes via ESC or [x].
+      ]]></ideas>
+  </tests>
+</story-context>

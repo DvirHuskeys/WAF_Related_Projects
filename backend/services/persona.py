@@ -3,7 +3,15 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Dict, List
 
-from backend.services import scoring, storage
+from backend.services import freshness, scoring, storage
+
+
+class PersonaNotFound(ValueError):
+    pass
+
+
+class DomainNotFound(ValueError):
+    pass
 
 PERSONA_TEMPLATES: Dict[str, Dict[str, str]] = {
     "ae": {
@@ -28,22 +36,28 @@ def list_personas() -> List[Dict[str, str]]:
 def generate_persona_view(persona_id: str, domain: str) -> Dict[str, str]:
     persona_id = persona_id.lower()
     if persona_id not in PERSONA_TEMPLATES:
-        raise ValueError(f"Unknown persona '{persona_id}'.")
+        raise PersonaNotFound(f"Unknown persona '{persona_id}'.")
 
     record = storage.fetch_domain(domain)
     if not record:
-        raise ValueError(f"No enrichment record found for {domain}.")
+        raise DomainNotFound(f"No enrichment record found for {domain}.")
 
-    scores = scoring.derive_scores(record)
-    story = scoring.build_story(persona_id, record, scores)
+    scores = scoring.derive_scores(
+        record["domain"], record.get("detected_waf", "unknown")
+    )
+    stale_warning = freshness.get_warning(record.get("last_observed"))
+    story_prompt, hooks = scoring.build_story(persona_id, record, scores)
 
     return {
+        "persona_id": persona_id,
         "persona": PERSONA_TEMPLATES[persona_id],
         "domain": domain,
         "detected_waf": record.get("detected_waf"),
         "detected_cdn": record.get("detected_cdn"),
         "scores": scores,
-        "story_prompt": story,
+        "story_prompt": story_prompt,
+        "hooks": hooks,
         "last_updated": record.get("last_observed", datetime.utcnow().isoformat()),
+        "stale_warning": stale_warning,
     }
 

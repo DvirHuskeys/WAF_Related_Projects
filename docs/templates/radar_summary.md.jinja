@@ -1,0 +1,40 @@
+# {{ domain }} Radar Summary
+
+> Generated {{ generated_at }} UTC | Persona: {{ persona.name }} ({{ persona.goal }}) | Job {{ job_id }}
+
+## Stack Snapshot
+- Domain: {{ domain }}
+- Detected WAF: {{ stack.detected_waf }}
+- Detected CDN: {{ stack.detected_cdn }}
+- Priority Index: {{ priority_index }}
+- Story Prompt: {{ story_prompt }}
+- Last Observed: {{ stack.last_observed }}
+
+## Risk Signals
+{% for signal in risk_signals %}
+- **{{ signal.label }} ({{ signal.value }})** - {{ signal.summary }}
+{% else %}
+- No risk signals available.
+{% endfor %}
+
+## Persona Hooks
+{% for hook in hooks %}
+1. **{{ hook.title }}** - {{ hook.description }} _(trigger: {{ hook.score_reason }})_
+{% else %}
+1. No persona hooks crossed their thresholds; fall back to the default prompt.
+{% endfor %}
+
+## Recommended Next Steps
+{% for step in next_steps %}
+- {{ step }}
+{% else %}
+- Re-run enrichment to collect the latest telemetry, then refresh this summary.
+{% endfor %}
+
+## Freshness & Citations
+- {{ freshness_note }}
+- Data source: DuckDB `domain_enrichment` ({{ stack.last_observed }})
+- Persona context: `backend.services.persona.generate_persona_view` ({{ generated_at }} UTC)
+- Export helper: `backend.services.export.generate_radar_summary` (Job {{ job_id }})
+
+

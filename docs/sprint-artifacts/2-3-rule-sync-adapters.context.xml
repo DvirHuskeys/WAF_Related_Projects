@@ -1,0 +1,82 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>3</storyId>
+    <title>Rule Sync Adapter Framework</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-30</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/2-3-rule-sync-adapters.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>As a platform engineer</asA>
+    <iWant>I want the rule-sync CLI to load vendor exports through pluggable adapters</iWant>
+    <soThat></soThat>
+    <tasks>      <![CDATA[
+      - [ ] Implement adapter loader (AC: 1–3)  
+  - [ ] Dynamically import `scripts.rule_sync.<vendor>` and call `load_rules(source_path)`.  
+  - [ ] Validate each rule dict contains required keys; raise `typer.BadParameter` if unknown vendor.  
+- [ ] Cloudflare adapter polishing (AC: 1)  
+  - [ ] Ensure existing `cloudflare.py` returns normalized dicts with `metadata`.  
+- [ ] CLI UX (AC: 4 & 5)  
+  - [ ] Add summary stats + job logging hook.  
+  - [ ] Update README and `Makefile` target `run-rule-sync`.  
+- [ ] Extension doc (AC: 3)  
+  - [ ] Add `docs/adapters.md` snippet describing adapter contract (ties into Epic 6 Story 6.4).
+      ]]></tasks>
+  </story>
+
+  <acceptanceCriteria>      <![CDATA[
+      1. Given I run `python scripts/rule_sync/run.py cloudflare --source data/rules/cloudflare_sample.json`, the CLI loads the adapter module (`scripts/rule_sync/cloudflare.py`), parses the JSON, and inserts/updates rows in DuckDB `managed_rules` with vendor/name/category/severity/detection_pattern/metadata fields.
+2. Adapters follow a documented interface: exporting a `load_rules(Path) -> List[dict]` with required keys, raising clear exceptions on parse failures.
+3. Adding a new adapter (e.g., `aws_waf.py`) requires only dropping the file into `scripts/rule_sync/` and referencing it via CLI `--vendor aws_waf`; no changes to persona/reporting modules.
+4. CLI outputs summary counts per vendor (inserted, updated) and references the job log entry (Story 2.4).
+5. README/Makefile include instructions for running rule sync with different vendors.
+      ]]></acceptanceCriteria>
+
+  <artifacts>
+    <docs>      <doc path="docs/sprint-artifacts/2-3-rule-sync-adapters.md" title="Rule Sync Adapter Framework" section="Story Draft" snippet="As a platform engineer, I want the rule-sync CLI to load vendor exports through pluggable adapters, so new managed-rule packs can be normalized without touching persona or reporting code." />
+      <doc path="docs/epics.md" title="WAF Security - Epic Breakdown" section="Story 2.3" snippet="As a platform engineer, I want to add vendor adapters via `scripts/rule_sync/` so new rule packs can be normalized without touching persona code. **Acceptance Criteria** • **Given** I run `python scripts/rule_sync/run.py cloudflare --source data/rules/cloudflare_sample.json` • **When** the adapter finishes • **Then** `managed_rules` rows are inserted with…" />
+      <doc path="docs/prd.md" title="Product Requirements Document" section="Executive Summary" snippet="WAF Security establishes a local-first “insight spine” that combines WAFtotal (vendor-agnostic managed-rule transparency) with GTM Radar (domain fingerprinting + storytelling) so every security, architecture, and GTM conversation starts with evidence instead of guesswork. By harvesting domain signals, normalizing Cloudflare/AWS/Akamai rule packs, and…" />
+      <doc path="docs/architecture.md" title="Architecture Specification" section="Project Context &amp; Goals" snippet="- **Deployment Reality:** Local-first sandbox meant to run entirely on a lone laptop (Streamlit UI, FastAPI services, DuckDB file storage). No cloud infra, no Postgres/React rewrite—lightweight scripts + HTML artifacts are sufficient so iteration stays fast. - **Primary Outcomes:** 1. Fingerprint domains (CLI + FastAPI) and persist results in DuckDB. 2.…" />
+      <doc path="docs/product-brief-WAF Security-2025-11-30.md" title="Product Brief" section="Executive Summary" snippet="WAF Security is building an internal “insight spine” that fuses two sibling ideas—**WAFtotal**, a vendor-agnostic managed-rule transparency experience, and **GTM Radar**, a domain fingerprinting + storytelling engine for sales and marketing teams. Together they deliver three promises: (1) decode any prospect’s WAF/CDN posture in minutes, (2) expose…" />
+      <doc path="docs/research-market-2025-11-30.md" title="Market/Domain Research" section="Executive Summary" snippet="- The global web application firewall (WAF) market is scaling aggressively: SNS Insider pegs it at **USD 6.35 B in 2023 with a path to USD 28.6 B by 2032 (18.2% CAGR)**, while ResearchAndMarkets estimates **USD 6.22 B in 2024 growing to USD 19.2 B by 2033 (13.3% CAGR)**, giving us a triangulated TAM envelope of USD 19–29 B within a decade. - [Source: SNS…" /></docs>
+    <code>      <code path="scripts/domain_enrich.py" kind="cli" symbol="main" lines="20-87" reason="Implements CSV ingestion pipeline for enrichment CLIs." />
+      <code path="backend/services/fingerprint.py" kind="service" symbol="detect_stack" lines="21-51" reason="Detects WAF/CDN stacks and scoring heuristics reused across Epic 2." />
+      <code path="backend/services/storage.py" kind="service" symbol="get_connection" lines="11-68" reason="Persists enrichment + rule sync results mentioned in pipeline stories." /></code>
+    <dependencies>      <dependency name="duckdb" version="1.1.3" scope="storage" />
+      <dependency name="typer" version="0.12.5" scope="cli" />
+      <dependency name="wafw00f" version="2.2.0" scope="security" />
+      <dependency name="rich" version="13.9.2" scope="cli" /></dependencies>
+  </artifacts>
+
+  <constraints>      <![CDATA[
+      - Aligns with PRD FR3, FR20.  
+- Reuse DuckDB helper functions; wrap inserts in transactions.  
+- Consider optionally supporting zipped/vendor-provided formats later.
+
+### Project Structure Notes
+
+- Adapters live under `scripts/rule_sync/`.  
+- CLI stays thin, delegating parsing to adapters.  
+- Ensure `__init__.py` exports available vendors for discovery.
+
+### References
+
+- [Source: docs/epics.md#story-23-rule-sync-adapter-framework]  
+- [Source: docs/prd.md#functional-requirements FR3, FR20]
+      ]]></constraints>
+  <interfaces>      <interface name="domain_enrich CLI" kind="CLI command" signature="python scripts/domain_enrich.py data/samples/domains.csv [--limit]" path="scripts/domain_enrich.py" /></interfaces>
+  <tests>
+    <standards>      <![CDATA[
+      - [x] domain_enrich.py run Command: `python scripts/domain_enrich.py data/samples/domains.csv` Result: Generated four enriched records in DuckDB, offline heuristics used. - [x] rule_sync/run.py Command: `python scripts/rule_sync/run.py cloudflare --source data/rules/cloudflare_sample.json` Result: Loaded two sample managed rules. - [x] API schema test…
+      ]]></standards>
+    <locations>      <![CDATA[
+      tests/, scripts/, ui/
+      ]]></locations>
+    <ideas>      <![CDATA[
+      AC1: Verify Given I run `python scripts/rule_sync/run.py cloudflare --source data/rules/cloudflare_sample.json`, the CLI loads the adapter module (`scripts/rule_sync/cloudflare.py`), parses the JSON, and inserts/updates rows in DuckDB `managed_rules` with vendor/name/category/severity/detection_pattern/metadata fields.; AC2: Verify Adapters follow a documented interface: exporting a `load_rules(Path) -> List[dict]` with required keys, raising clear exceptions on parse failures.; AC3: Verify Adding a new adapter (e.g., `aws_waf.py`) requires only dropping the file into `scripts/rule_sync/` and referencing it via CLI `--vendor aws_waf`; no changes to persona/reporting modules.; AC4: Verify CLI outputs summary counts per vendor (inserted, updated) and references the job log entry (Story 2.4).; AC5: Verify README/Makefile include instructions for running rule sync with different vendors.
+      ]]></ideas>
+  </tests>
+</story-context>

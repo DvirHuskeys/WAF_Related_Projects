@@ -1,0 +1,56 @@
+# {{ domain }} Rule Transparency Brief
+
+> Generated {{ generated_at }} UTC | Rule Sync Job: {{ rule_sync_job_id }}
+
+## Executive Summary
+{{ comparison_summary }}
+
+## Vendor Comparison
+| Vendor | Rule ID | Name | Category | Severity | Detection Pattern | Mitigation | Freshness |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| {{ rule_a.vendor }} | {{ rule_a.rule_id }} | {{ rule_a.name }} | {{ rule_a.category }} | {{ rule_a.severity }} | {{ rule_a.detection_pattern or 'n/a' }} | {{ rule_a.mitigation or 'n/a' }} | {{ rule_a.freshness }} |
+| {{ rule_b.vendor }} | {{ rule_b.rule_id }} | {{ rule_b.name }} | {{ rule_b.category }} | {{ rule_b.severity }} | {{ rule_b.detection_pattern or 'n/a' }} | {{ rule_b.mitigation or 'n/a' }} | {{ rule_b.freshness }} |
+
+## Detection & Mitigation Notes
+- Pattern delta: {{ deltas.pattern }}
+- Mitigation delta: {{ deltas.mitigation }}
+- Severity delta: {{ deltas.severity }}
+- Freshness watch: {{ deltas.freshness }}
+- Stale alerts: {{ freshness_alert }}
+
+## Recommended Messaging
+{% for rec in recommendations %}
+- {{ rec }}
+{% else %}
+- Re-run rule sync and annotations to build executive-ready messaging.
+{% endfor %}
+
+## Rule Annotations
+### {{ rule_a.vendor }} {{ rule_a.rule_id }}
+{% for note in rule_a.notes %}
+- {{ note.author }} ({{ note.timestamp }}): {{ note.content }}
+{% else %}
+- No annotations captured for this rule.
+{% endfor %}
+
+### {{ rule_b.vendor }} {{ rule_b.rule_id }}
+{% for note in rule_b.notes %}
+- {{ note.author }} ({{ note.timestamp }}): {{ note.content }}
+{% else %}
+- No annotations captured for this rule.
+{% endfor %}
+
+## Citations
+- Rule Sync Reference: {{ rule_sync_job_id }}
+- Note authors: {{ note_authors|join(', ') if note_authors else 'none recorded' }}
+- Export helper: `backend.services.export.generate_rule_brief`
+
+
+
+
+
+
+
+
+
+

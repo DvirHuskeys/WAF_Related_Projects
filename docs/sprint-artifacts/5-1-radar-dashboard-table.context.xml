@@ -1,0 +1,81 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>5</epicId>
+    <storyId>1</storyId>
+    <title>Radar Dashboard Table</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-30</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/5-1-radar-dashboard-table.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>As GTM teams</asA>
+    <iWant>I want a sortable domain table (GTM Radar) showing drift/downtime/attack scores with persona hooks</iWant>
+    <soThat></soThat>
+    <tasks>      <![CDATA[
+      - [ ] Table rendering (AC: 1–4)  
+  - [ ] Query `domain_enrichment` and format into pandas/AgGrid table with color badges.  
+  - [ ] Add vendor icons (emoji or small PNG).  
+  - [ ] Provide persona buttons per row.  
+- [ ] Filtering/persistence (AC: 2)  
+  - [ ] Add multi-select filters + search bar; store selections in session state.  
+- [ ] Row selection integration (AC: 3)  
+  - [ ] Clicking persona button triggers `st.session_state["selected_domain"]` and jumps to persona section.  
+- [ ] Refresh hooks (AC: 5)  
+  - [ ] Add “Refresh data” button or auto-refresh interval after job success.  
+- [ ] Theme polish (AC: 4)  
+  - [ ] Apply consistent spacing, focus outlines, accessibility tags.
+      ]]></tasks>
+  </story>
+
+  <acceptanceCriteria>      <![CDATA[
+      1. Radar table lists domains with columns: Domain, Detected WAF/CDN (icons), Drift/Downtime/Attack scores (color-coded badges), Freshness warning, Persona quick links (buttons).
+2. Table supports sorting by any score and filtering by vendor, persona relevance, or freshness status; filters persist via `st.session_state`.
+3. Selecting a row (or clicking persona button) scrolls to / opens the persona cards (Story 3.4).
+4. Layout matches UX spec (Midnight Intelligence theme, responsive two-column layout) and supports empty-state messaging.
+5. Data auto-refreshes when enrichment job completes (poll job log or provide “Refresh” button).
+      ]]></acceptanceCriteria>
+
+  <artifacts>
+    <docs>      <doc path="docs/sprint-artifacts/5-1-radar-dashboard-table.md" title="Radar Dashboard Table" section="Story Draft" snippet="As GTM teams, I want a sortable domain table (GTM Radar) showing drift/downtime/attack scores with persona hooks, so I can prioritize outreach and jump straight into the right story." />
+      <doc path="docs/epics.md" title="WAF Security - Epic Breakdown" section="Story 5.1" snippet="As GTM teams, we want a sortable domain table showing drift/downtime/attack scores with quick persona chips so we can prioritize outreach. **Acceptance Criteria** • **Given** enrichment data exists • **When** I view the dashboard • **Then** each row shows domain, WAF/CDN icons, scores with color-coded badges, freshness indicator, and a “View personas”…" />
+      <doc path="docs/prd.md" title="Product Requirements Document" section="Executive Summary" snippet="WAF Security establishes a local-first “insight spine” that combines WAFtotal (vendor-agnostic managed-rule transparency) with GTM Radar (domain fingerprinting + storytelling) so every security, architecture, and GTM conversation starts with evidence instead of guesswork. By harvesting domain signals, normalizing Cloudflare/AWS/Akamai rule packs, and…" />
+      <doc path="docs/architecture.md" title="Architecture Specification" section="Project Context &amp; Goals" snippet="- **Deployment Reality:** Local-first sandbox meant to run entirely on a lone laptop (Streamlit UI, FastAPI services, DuckDB file storage). No cloud infra, no Postgres/React rewrite—lightweight scripts + HTML artifacts are sufficient so iteration stays fast. - **Primary Outcomes:** 1. Fingerprint domains (CLI + FastAPI) and persist results in DuckDB. 2.…" />
+      <doc path="docs/product-brief-WAF Security-2025-11-30.md" title="Product Brief" section="Executive Summary" snippet="WAF Security is building an internal “insight spine” that fuses two sibling ideas—**WAFtotal**, a vendor-agnostic managed-rule transparency experience, and **GTM Radar**, a domain fingerprinting + storytelling engine for sales and marketing teams. Together they deliver three promises: (1) decode any prospect’s WAF/CDN posture in minutes, (2) expose…" />
+      <doc path="docs/research-market-2025-11-30.md" title="Market/Domain Research" section="Executive Summary" snippet="- The global web application firewall (WAF) market is scaling aggressively: SNS Insider pegs it at **USD 6.35 B in 2023 with a path to USD 28.6 B by 2032 (18.2% CAGR)**, while ResearchAndMarkets estimates **USD 6.22 B in 2024 growing to USD 19.2 B by 2033 (13.3% CAGR)**, giving us a triangulated TAM envelope of USD 19–29 B within a decade. - [Source: SNS…" /></docs>
+    <code>      <code path="ui/app.py" kind="ui" symbol="WAF Security Lab layout" lines="1-56" reason="Base UI for radar table + persona hooks." />
+      <code path="backend/services/persona.py" kind="service" symbol="list_personas" lines="8-48" reason="Supplies persona metadata for reporting exports." />
+      <code path="backend/services/storage.py" kind="service" symbol="list_domains helpers" lines="49-68" reason="Provides data retrieval for radar tables and report exports." /></code>
+    <dependencies>      <dependency name="streamlit" version="1.40.1" scope="ui" />
+      <dependency name="fastapi" version="0.115.2" scope="api" />
+      <dependency name="httpx" version="0.27.0" scope="api" /></dependencies>
+  </artifacts>
+
+  <constraints>      <![CDATA[
+      - Reuse scoring + freshness helpers.  
+- Consider caching to avoid repeated DuckDB calls; use `st.cache_data`.
+
+### Project Structure Notes
+
+- Table logic can live in `ui/components/radar_table.py`.  
+- Keep `ui/app.py` orchestrating the page sections.
+
+### References
+
+- [Source: docs/epics.md#story-51-radar-dashboard-table]  
+- [Source: docs/ux-design-specification.md#key-interactions]
+      ]]></constraints>
+  <interfaces>      <interface name="Streamlit Radar view" kind="UI component" signature="ui/app.py::main session" path="ui/app.py" /></interfaces>
+  <tests>
+    <standards>      <![CDATA[
+      - [x] domain_enrich.py run Command: `python scripts/domain_enrich.py data/samples/domains.csv` Result: Generated four enriched records in DuckDB, offline heuristics used. - [x] rule_sync/run.py Command: `python scripts/rule_sync/run.py cloudflare --source data/rules/cloudflare_sample.json` Result: Loaded two sample managed rules. - [x] API schema test…
+      ]]></standards>
+    <locations>      <![CDATA[
+      tests/, scripts/, ui/
+      ]]></locations>
+    <ideas>      <![CDATA[
+      AC1: Verify Radar table lists domains with columns: Domain, Detected WAF/CDN (icons), Drift/Downtime/Attack scores (color-coded badges), Freshness warning, Persona quick links (buttons).; AC2: Verify Table supports sorting by any score and filtering by vendor, persona relevance, or freshness status; filters persist via `st.session_state`.; AC3: Verify Selecting a row (or clicking persona button) scrolls to / opens the persona cards (Story 3.4).; AC4: Verify Layout matches UX spec (Midnight Intelligence theme, responsive two-column layout) and supports empty-state messaging.; AC5: Verify Data auto-refreshes when enrichment job completes (poll job log or provide “Refresh” button).
+      ]]></ideas>
+  </tests>
+</story-context>

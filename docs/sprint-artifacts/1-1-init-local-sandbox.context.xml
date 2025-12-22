@@ -1,0 +1,77 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1</storyId>
+    <title>Initialize Local Sandbox</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-30</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/1-1-init-local-sandbox.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>As an internal developer</asA>
+    <iWant>I want a reproducible repository and virtualenv scaffold</iWant>
+    <soThat>so that everyone can run the Streamlit/FastAPI/DuckDB stack locally without extra setup.</soThat>
+    <tasks>      <![CDATA[
+      - [ ] Bootstrap virtualenv workflow (AC: 1)  
+  - [ ] Add bootstrap section to `README.md` (commands + troubleshooting).  
+  - [ ] Commit `.env.example` with documented vars (`USE_WAFW00F`, `STREAMLIT_SERVER_PORT`, etc.).  
+- [ ] Scaffold project directories (AC: 2)  
+  - [ ] Ensure `.streamlit/config.toml`, `data/.gitkeep`, `docs/.gitkeep`, `backend/__init__.py`, `scripts/__init__.py`, `ui/__init__.py` exist.  
+  - [ ] Add placeholder files explaining folder purpose (short README or comments).  
+- [ ] Add developer convenience scripts (AC: 3)  
+  - [ ] Create a `Makefile` (or `scripts/bootstrap.sh`) invoking the documented commands.  
+  - [ ] Verify `streamlit run ui/app.py` prints the empty-state warning (smoke test).
+      ]]></tasks>
+  </story>
+
+  <acceptanceCriteria>      <![CDATA[
+      1. Given the repo is freshly cloned, when I run `python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt`, then dependencies install without manual edits.
+2. The codebase contains baseline folders `.streamlit/`, `data/`, `docs/`, `backend/`, `scripts/`, and `ui/` (with placeholder files or README stubs) after bootstrap.
+3. A `.env.example` documents toggles such as `USE_WAFW00F`, and the root README (or Makefile) lists the bootstrap commands.
+      ]]></acceptanceCriteria>
+
+  <artifacts>
+    <docs>      <doc path="docs/sprint-artifacts/1-1-init-local-sandbox.md" title="Initialize Local Sandbox" section="Story Draft" snippet="As an internal developer, I want a reproducible repository and virtualenv scaffold, so that everyone can run the Streamlit/FastAPI/DuckDB stack locally without extra setup." />
+      <doc path="docs/epics.md" title="WAF Security - Epic Breakdown" section="Story 1.1" snippet="As an internal developer, I want a reproducible repo + virtualenv scaffold so that contributors can run Streamlit/FastAPI/DuckDB locally without extra setup. **Acceptance Criteria** • **Given** the repo is cloned fresh • **When** I run `python3 -m venv .venv &amp;&amp; source .venv/bin/activate &amp;&amp; pip install -r requirements.txt` • **Then** dependencies install…" />
+      <doc path="docs/prd.md" title="Product Requirements Document" section="Executive Summary" snippet="WAF Security establishes a local-first “insight spine” that combines WAFtotal (vendor-agnostic managed-rule transparency) with GTM Radar (domain fingerprinting + storytelling) so every security, architecture, and GTM conversation starts with evidence instead of guesswork. By harvesting domain signals, normalizing Cloudflare/AWS/Akamai rule packs, and…" />
+      <doc path="docs/architecture.md" title="Architecture Specification" section="Project Context &amp; Goals" snippet="- **Deployment Reality:** Local-first sandbox meant to run entirely on a lone laptop (Streamlit UI, FastAPI services, DuckDB file storage). No cloud infra, no Postgres/React rewrite—lightweight scripts + HTML artifacts are sufficient so iteration stays fast. - **Primary Outcomes:** 1. Fingerprint domains (CLI + FastAPI) and persist results in DuckDB. 2.…" />
+      <doc path="docs/product-brief-WAF Security-2025-11-30.md" title="Product Brief" section="Executive Summary" snippet="WAF Security is building an internal “insight spine” that fuses two sibling ideas—**WAFtotal**, a vendor-agnostic managed-rule transparency experience, and **GTM Radar**, a domain fingerprinting + storytelling engine for sales and marketing teams. Together they deliver three promises: (1) decode any prospect’s WAF/CDN posture in minutes, (2) expose…" />
+      <doc path="docs/research-market-2025-11-30.md" title="Market/Domain Research" section="Executive Summary" snippet="- The global web application firewall (WAF) market is scaling aggressively: SNS Insider pegs it at **USD 6.35 B in 2023 with a path to USD 28.6 B by 2032 (18.2% CAGR)**, while ResearchAndMarkets estimates **USD 6.22 B in 2024 growing to USD 19.2 B by 2033 (13.3% CAGR)**, giving us a triangulated TAM envelope of USD 19–29 B within a decade. - [Source: SNS…" /></docs>
+    <code>      <code path="backend/services/storage.py" kind="service" symbol="get_connection" lines="11-68" reason="Ensures DuckDB schema aligns with sandbox bootstrap expectations." />
+      <code path="ui/app.py" kind="ui" symbol="Streamlit dashboard" lines="1-56" reason="Provides the base Streamlit shell referenced in foundation stories." />
+      <code path="scripts/domain_enrich.py" kind="cli" symbol="main" lines="20-87" reason="Seeds sample data as part of lab initialization smoke tests." /></code>
+    <dependencies>      <dependency name="streamlit" version="1.40.1" scope="ui" />
+      <dependency name="duckdb" version="1.1.3" scope="storage" />
+      <dependency name="typer" version="0.12.5" scope="cli" /></dependencies>
+  </artifacts>
+
+  <constraints>      <![CDATA[
+      - Foundation aligns with the architecture goal of “local-first sandbox” (see `docs/architecture.md#1-project-context--goals`). Avoid adding external dependencies or services.  
+- Keep dependency list minimal (FastAPI, DuckDB, Streamlit, Typer, Rich, etc. per `requirements.txt`).  
+- Document `.env` toggles so future stories (fingerprinting, persona service) can reuse the same config surface.
+
+### Project Structure Notes
+
+- Root directories now match the UX/Architecture expectations (`backend/services/...`, `ui/app.py`, `scripts/*.py`).  
+- Use snake_case for script names (`seed_sample_data.py`) and keep modules importable by Streamlit (i.e., add `__init__.py` in package folders). No conflicts detected.
+
+### References
+
+- [Source: docs/epics.md#story-11-initialize-local-sandbox]  
+- [Source: docs/architecture.md#1-project-context--goals]
+      ]]></constraints>
+  <interfaces>      <interface name="FastAPI admin endpoints" kind="REST endpoint" signature="GET /personas" path="backend/main.py" /></interfaces>
+  <tests>
+    <standards>      <![CDATA[
+      - [x] domain_enrich.py run Command: `python scripts/domain_enrich.py data/samples/domains.csv` Result: Generated four enriched records in DuckDB, offline heuristics used. - [x] rule_sync/run.py Command: `python scripts/rule_sync/run.py cloudflare --source data/rules/cloudflare_sample.json` Result: Loaded two sample managed rules. - [x] API schema test…
+      ]]></standards>
+    <locations>      <![CDATA[
+      tests/, scripts/, ui/
+      ]]></locations>
+    <ideas>      <![CDATA[
+      AC1: Verify Given the repo is freshly cloned, when I run `python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt`, then dependencies install without manual edits.; AC2: Verify The codebase contains baseline folders `.streamlit/`, `data/`, `docs/`, `backend/`, `scripts/`, and `ui/` (with placeholder files or README stubs) after bootstrap.; AC3: Verify A `.env.example` documents toggles such as `USE_WAFW00F`, and the root README (or Makefile) lists the bootstrap commands.
+      ]]></ideas>
+  </tests>
+</story-context>

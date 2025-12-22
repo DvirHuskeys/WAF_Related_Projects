@@ -1,0 +1,77 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>4</epicId>
+    <storyId>4</storyId>
+    <title>Rule Freshness Metadata</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-30</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/4-4-rule-freshness-metadata.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>As platform teams</asA>
+    <iWant>I want each managed rule annotated with source and sync timestamp</iWant>
+    <soThat></soThat>
+    <tasks>      <![CDATA[
+      - [ ] Schema update (AC: 1)  
+  - [ ] Modify init script + rule sync adapter to ensure `source` and `synced_at` columns exist/populate.  
+- [ ] UI updates (AC: 2–3)  
+  - [ ] Show badges in Rule Explorer + Drawer; integrate with stale helper.  
+- [ ] Export updates (AC: 4)  
+  - [ ] Markdown/PDF exports append “Rule source / last sync” tables.  
+- [ ] Config (AC: 5)  
+  - [ ] Ensure SLA uses same env/config as Story 2.5.
+      ]]></tasks>
+  </story>
+
+  <acceptanceCriteria>      <![CDATA[
+      1. `managed_rules` rows store `source` (e.g., “Cloudflare export”) and `synced_at` timestamp; rule sync CLI populates these fields.
+2. Rule Explorer table (Story 4.1) displays a freshness badge (“Synced 2025‑11‑30”) that turns amber when stale per SLA.
+3. Rule Comparison Drawer (Story 4.2) surfaces freshness metadata in the summary sentence (“AWS rule synced 45d ago”).
+4. Persona/report exports include source + synced_at for any rules referenced.
+5. SLA threshold is configurable (reuse Story 2.5) and warnings share the same helper to avoid duplication.
+      ]]></acceptanceCriteria>
+
+  <artifacts>
+    <docs>      <doc path="docs/sprint-artifacts/4-4-rule-freshness-metadata.md" title="Rule Freshness Metadata" section="Story Draft" snippet="As platform teams, I want each managed rule annotated with source and sync timestamp, so I can see at a glance when to re-run rule sync or question a vendor’s coverage." />
+      <doc path="docs/epics.md" title="WAF Security - Epic Breakdown" section="Story 4.4" snippet="As platform teams, we want each rule annotated with source + sync timestamp so we know when to refresh. **Acceptance Criteria** • **Given** rule metadata contains `synced_at` and `source` • **When** the UI renders • **Then** each rule card shows “From Cloudflare export • synced 2025‑11‑30” and stale ones show warning icon **Prerequisites** Story 2.5…" />
+      <doc path="docs/prd.md" title="Product Requirements Document" section="Executive Summary" snippet="WAF Security establishes a local-first “insight spine” that combines WAFtotal (vendor-agnostic managed-rule transparency) with GTM Radar (domain fingerprinting + storytelling) so every security, architecture, and GTM conversation starts with evidence instead of guesswork. By harvesting domain signals, normalizing Cloudflare/AWS/Akamai rule packs, and…" />
+      <doc path="docs/architecture.md" title="Architecture Specification" section="Project Context &amp; Goals" snippet="- **Deployment Reality:** Local-first sandbox meant to run entirely on a lone laptop (Streamlit UI, FastAPI services, DuckDB file storage). No cloud infra, no Postgres/React rewrite—lightweight scripts + HTML artifacts are sufficient so iteration stays fast. - **Primary Outcomes:** 1. Fingerprint domains (CLI + FastAPI) and persist results in DuckDB. 2.…" />
+      <doc path="docs/product-brief-WAF Security-2025-11-30.md" title="Product Brief" section="Executive Summary" snippet="WAF Security is building an internal “insight spine” that fuses two sibling ideas—**WAFtotal**, a vendor-agnostic managed-rule transparency experience, and **GTM Radar**, a domain fingerprinting + storytelling engine for sales and marketing teams. Together they deliver three promises: (1) decode any prospect’s WAF/CDN posture in minutes, (2) expose…" />
+      <doc path="docs/research-market-2025-11-30.md" title="Market/Domain Research" section="Executive Summary" snippet="- The global web application firewall (WAF) market is scaling aggressively: SNS Insider pegs it at **USD 6.35 B in 2023 with a path to USD 28.6 B by 2032 (18.2% CAGR)**, while ResearchAndMarkets estimates **USD 6.22 B in 2024 growing to USD 19.2 B by 2033 (13.3% CAGR)**, giving us a triangulated TAM envelope of USD 19–29 B within a decade. - [Source: SNS…" /></docs>
+    <code>      <code path="scripts/rule_sync/run.py" kind="cli" symbol="main entry" lines="1-120" reason="Normalizes vendor rule packs for Rule Transparency Studio stories." />
+      <code path="scripts/rule_sync/cloudflare.py" kind="adapter" symbol="load_rules" lines="1-120" reason="Concrete adapter showing how vendor rules are parsed and exposed." />
+      <code path="backend/services/storage.py" kind="service" symbol="managed_rules schema" lines="18-47" reason="Stores normalized rules used by grid/comparison/annotation flows." /></code>
+    <dependencies>      <dependency name="duckdb" version="1.1.3" scope="storage" />
+      <dependency name="pandas" version="2.2.3" scope="data" />
+      <dependency name="python-whois" version="0.8.0" scope="intel" /></dependencies>
+  </artifacts>
+
+  <constraints>      <![CDATA[
+      - Stale logic is shared with data warnings; keep util DRY.  
+- Consider storing vendor version numbers if available in metadata.
+
+### Project Structure Notes
+
+- Update `backend/services/storage.py` schema definitions.  
+- UI changes live alongside existing components.
+
+### References
+
+- [Source: docs/epics.md#story-44-rule-freshness-metadata]  
+- [Source: docs/prd.md#functional-requirements FR10, FR22]
+      ]]></constraints>
+  <interfaces>      <interface name="rule_sync adapter runner" kind="CLI command" signature="python scripts/rule_sync/run.py cloudflare --source data/rules/cloudflare_sample.json" path="scripts/rule_sync/run.py" /></interfaces>
+  <tests>
+    <standards>      <![CDATA[
+      - [x] domain_enrich.py run Command: `python scripts/domain_enrich.py data/samples/domains.csv` Result: Generated four enriched records in DuckDB, offline heuristics used. - [x] rule_sync/run.py Command: `python scripts/rule_sync/run.py cloudflare --source data/rules/cloudflare_sample.json` Result: Loaded two sample managed rules. - [x] API schema test…
+      ]]></standards>
+    <locations>      <![CDATA[
+      tests/, scripts/, ui/
+      ]]></locations>
+    <ideas>      <![CDATA[
+      AC1: Verify `managed_rules` rows store `source` (e.g., “Cloudflare export”) and `synced_at` timestamp; rule sync CLI populates these fields.; AC2: Verify Rule Explorer table (Story 4.1) displays a freshness badge (“Synced 2025‑11‑30”) that turns amber when stale per SLA.; AC3: Verify Rule Comparison Drawer (Story 4.2) surfaces freshness metadata in the summary sentence (“AWS rule synced 45d ago”).; AC4: Verify Persona/report exports include source + synced_at for any rules referenced.; AC5: Verify SLA threshold is configurable (reuse Story 2.5) and warnings share the same helper to avoid duplication.
+      ]]></ideas>
+  </tests>
+</story-context>

@@ -1,0 +1,17 @@
+[server]
+headless = true
+port = 8501
+address = "0.0.0.0"
+maxUploadSize = 200
+enableCORS = false
+
+[theme]
+base = "dark"
+primaryColor = "#2D7BFF"
+backgroundColor = "#10131B"
+secondaryBackgroundColor = "#1A1F2B"
+textColor = "#F4F6FB"
+
+[logger]
+level = "info"
+messageFormat = "%(asctime)s %(levelname)s %(message)s"

@@ -1,0 +1,50 @@
+{
+  "Check if table exists (any data)": {
+    "success": true,
+    "rows": [],
+    "columns": [],
+    "row_count": 0
+  },
+  "Check table structure": {
+    "success": true,
+    "rows": [],
+    "columns": [],
+    "row_count": 0
+  },
+  "Find any year with data": {
+    "success": true,
+    "rows": [],
+    "columns": [],
+    "row_count": 0
+  },
+  "Find any month with data (2024)": {
+    "success": true,
+    "rows": [],
+    "columns": [],
+    "row_count": 0
+  },
+  "Find any month with data (2023)": {
+    "success": true,
+    "rows": [],
+    "columns": [],
+    "row_count": 0
+  },
+  "Sample without WHERE clause": {
+    "success": true,
+    "rows": [],
+    "columns": [],
+    "row_count": 0
+  },
+  "Check partitions": {
+    "success": true,
+    "rows": [],
+    "columns": [],
+    "row_count": 0
+  },
+  "Find latest data point": {
+    "success": true,
+    "rows": [],
+    "columns": [],
+    "row_count": 0
+  }
+}

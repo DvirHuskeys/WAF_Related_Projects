@@ -1,0 +1,140 @@
+{
+  "time_windows": [
+    {
+      "query": "Available Years",
+      "result": {
+        "success": true,
+        "rows": [],
+        "columns": [],
+        "row_count": 0
+      }
+    },
+    {
+      "query": "Available Months (2025)",
+      "result": {
+        "success": true,
+        "rows": [],
+        "columns": [],
+        "row_count": 0
+      }
+    },
+    {
+      "query": "Available Days (Dec 2025)",
+      "result": {
+        "success": true,
+        "rows": [],
+        "columns": [],
+        "row_count": 0
+      }
+    },
+    {
+      "query": "Available Hours (Latest Day)",
+      "result": {
+        "success": true,
+        "rows": [],
+        "columns": [],
+        "row_count": 0
+      }
+    },
+    {
+      "query": "Total Request Count",
+      "result": {
+        "success": true,
+        "rows": [],
+        "columns": [],
+        "row_count": 0
+      }
+    },
+    {
+      "query": "Sample Data (Latest 10 rows)",
+      "result": {
+        "success": true,
+        "rows": [],
+        "columns": [],
+        "row_count": 0
+      }
+    },
+    {
+      "query": "Column Names",
+      "result": {
+        "success": true,
+        "rows": [],
+        "columns": [],
+        "row_count": 0
+      }
+    }
+  ],
+  "query_results": [
+    {
+      "query": {
+        "id": "Q1",
+        "name": "High-Volume IPs",
+        "sql": "\n            SELECT \n                clientip,\n                COUNT(*) as request_count,\n                COUNT(DISTINCT clientrequesturi) as unique_endpoints,\n                COUNT(DISTINCT clientrequestuseragent) as unique_user_agents\n            FROM waf_logs_db.quillbot_waf_logs_huskeys_copy \n            WHERE year = 2025\n              AND month = 12\n              AND day = 21\n              AND hour = 5\n            GROUP BY clientip\n            ORDER BY request_count DESC\n            LIMIT 20\n            "
+      },
+      "result": {
+        "success": true,
+        "rows": [],
+        "columns": [],
+        "row_count": 0
+      }
+    },
+    {
+      "query": {
+        "id": "Q6",
+        "name": "WAF Action Distribution",
+        "sql": "\n            SELECT \n                wafaction,\n                COUNT(*) as action_count,\n                COUNT(DISTINCT clientip) as unique_ips\n            FROM waf_logs_db.quillbot_waf_logs_huskeys_copy \n            WHERE year = 2025\n              AND month = 12\n              AND day = 21\n              AND hour = 5\n              AND wafaction IS NOT NULL\n            GROUP BY wafaction\n            ORDER BY action_count DESC\n            "
+      },
+      "result": {
+        "success": true,
+        "rows": [],
+        "columns": [],
+        "row_count": 0
+      }
+    },
+    {
+      "query": {
+        "id": "Q24",
+        "name": "HTTP Method Distribution",
+        "sql": "\n            SELECT \n                clientrequestmethod,\n                COUNT(*) as method_count,\n                COUNT(DISTINCT clientip) as unique_ips\n            FROM waf_logs_db.quillbot_waf_logs_huskeys_copy \n            WHERE year = 2025\n              AND month = 12\n              AND day = 21\n              AND hour = 5\n            GROUP BY clientrequestmethod\n            ORDER BY method_count DESC\n            "
+      },
+      "result": {
+        "success": true,
+        "rows": [],
+        "columns": [],
+        "row_count": 0
+      }
+    },
+    {
+      "query": {
+        "id": "Q10",
+        "name": "Status Code Distribution",
+        "sql": "\n            SELECT \n                edgeresponsestatus,\n                COUNT(*) as status_count,\n                COUNT(DISTINCT clientip) as unique_ips\n            FROM waf_logs_db.quillbot_waf_logs_huskeys_copy \n            WHERE year = 2025\n              AND month = 12\n              AND day = 21\n              AND hour = 5\n            GROUP BY edgeresponsestatus\n            ORDER BY status_count DESC\n            LIMIT 20\n            "
+      },
+      "result": {
+        "success": true,
+        "rows": [],
+        "columns": [],
+        "row_count": 0
+      }
+    },
+    {
+      "query": {
+        "id": "Q17",
+        "name": "SQL Injection Attempts",
+        "sql": "\n            SELECT \n                clientip,\n                clientrequesturi,\n                COUNT(*) as attempt_count\n            FROM waf_logs_db.quillbot_waf_logs_huskeys_copy \n            WHERE year = 2025\n              AND month = 12\n              AND day = 21\n              AND hour = 5\n              AND (\n                LOWER(clientrequesturi) LIKE '%union%select%'\n                OR LOWER(clientrequesturi) LIKE '%or%1=1%'\n                OR LOWER(clientrequesturi) LIKE '%drop%table%'\n                OR LOWER(clientrequesturi) LIKE '%exec%(%'\n                OR LOWER(clientrequesturi) LIKE '%;--%'\n              )\n            GROUP BY clientip, clientrequesturi\n            ORDER BY attempt_count DESC\n            LIMIT 20\n            "
+      },
+      "result": {
+        "success": true,
+        "rows": [],
+        "columns": [],
+        "row_count": 0
+      }
+    }
+  ],
+  "test_window": {
+    "year": 2025,
+    "month": 12,
+    "day": 21,
+    "hour": 5
+  }
+}

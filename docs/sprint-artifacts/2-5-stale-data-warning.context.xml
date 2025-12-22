@@ -1,0 +1,81 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>5</storyId>
+    <title>Stale Data Warning</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-30</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/2-5-stale-data-warning.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>As a persona or GTM user</asA>
+    <iWant>I want visual warnings when enrichment or rule sync data is older than 30 days</iWant>
+    <soThat></soThat>
+    <tasks>      <![CDATA[
+      - [ ] Freshness util (AC: 1–5)  
+  - [ ] Add helper `is_stale(timestamp, threshold_days=30)` reused across UI/API/export paths.  
+- [ ] Streamlit indicators (AC: 1 & 2)  
+  - [ ] Radar table and persona cards display amber badge per UX spec.  
+  - [ ] Rule Studio highlights stale rules (ties into Story 4.4).  
+- [ ] API + exports (AC: 3 & 4)  
+  - [ ] Persona endpoint returns `stale_warning` string (or null).  
+  - [ ] Report templates append stale footnotes.  
+- [ ] Config (AC: 5)  
+  - [ ] Document env var (`STALE_THRESHOLD_DAYS`) and default value.
+      ]]></tasks>
+  </story>
+
+  <acceptanceCriteria>      <![CDATA[
+      1. Given a domain row whose `last_observed` is older than the freshness SLA (30 days), when the Streamlit UI renders the Radar table or persona cards, then a warning badge (“Data 37d old – re-run enrichment”) appears inline.
+2. When a managed rule’s metadata timestamp exceeds the SLA, Rule Transparency views and exports show the same warning badge.
+3. Persona API responses include a `stale_warning` field so downstream tools (exports, GTM snippets) can display the message.
+4. Markdown/PDF exports append a footnote listing stale items.
+5. SLA threshold is configurable via env or settings file; default remains 30 days.
+      ]]></acceptanceCriteria>
+
+  <artifacts>
+    <docs>      <doc path="docs/sprint-artifacts/2-5-stale-data-warning.md" title="Stale Data Warning" section="Story Draft" snippet="As a persona or GTM user, I want visual warnings when enrichment or rule sync data is older than 30 days, so I know when to re-run the pipelines before trusting the intel." />
+      <doc path="docs/epics.md" title="WAF Security - Epic Breakdown" section="Story 2.5" snippet="As a persona or GTM user, I want to see freshness alerts when enrichment or rule sync data is older than 30 days so I can re-run jobs. **Acceptance Criteria** • **Given** any domain or rule record older than the threshold • **When** Streamlit UI renders or persona API responds • **Then** a warning badge appears (“Data is 37 days old – re-run enrichment”)…" />
+      <doc path="docs/prd.md" title="Product Requirements Document" section="Executive Summary" snippet="WAF Security establishes a local-first “insight spine” that combines WAFtotal (vendor-agnostic managed-rule transparency) with GTM Radar (domain fingerprinting + storytelling) so every security, architecture, and GTM conversation starts with evidence instead of guesswork. By harvesting domain signals, normalizing Cloudflare/AWS/Akamai rule packs, and…" />
+      <doc path="docs/architecture.md" title="Architecture Specification" section="Project Context &amp; Goals" snippet="- **Deployment Reality:** Local-first sandbox meant to run entirely on a lone laptop (Streamlit UI, FastAPI services, DuckDB file storage). No cloud infra, no Postgres/React rewrite—lightweight scripts + HTML artifacts are sufficient so iteration stays fast. - **Primary Outcomes:** 1. Fingerprint domains (CLI + FastAPI) and persist results in DuckDB. 2.…" />
+      <doc path="docs/product-brief-WAF Security-2025-11-30.md" title="Product Brief" section="Executive Summary" snippet="WAF Security is building an internal “insight spine” that fuses two sibling ideas—**WAFtotal**, a vendor-agnostic managed-rule transparency experience, and **GTM Radar**, a domain fingerprinting + storytelling engine for sales and marketing teams. Together they deliver three promises: (1) decode any prospect’s WAF/CDN posture in minutes, (2) expose…" />
+      <doc path="docs/research-market-2025-11-30.md" title="Market/Domain Research" section="Executive Summary" snippet="- The global web application firewall (WAF) market is scaling aggressively: SNS Insider pegs it at **USD 6.35 B in 2023 with a path to USD 28.6 B by 2032 (18.2% CAGR)**, while ResearchAndMarkets estimates **USD 6.22 B in 2024 growing to USD 19.2 B by 2033 (13.3% CAGR)**, giving us a triangulated TAM envelope of USD 19–29 B within a decade. - [Source: SNS…" /></docs>
+    <code>      <code path="scripts/domain_enrich.py" kind="cli" symbol="main" lines="20-87" reason="Implements CSV ingestion pipeline for enrichment CLIs." />
+      <code path="backend/services/fingerprint.py" kind="service" symbol="detect_stack" lines="21-51" reason="Detects WAF/CDN stacks and scoring heuristics reused across Epic 2." />
+      <code path="backend/services/storage.py" kind="service" symbol="get_connection" lines="11-68" reason="Persists enrichment + rule sync results mentioned in pipeline stories." /></code>
+    <dependencies>      <dependency name="duckdb" version="1.1.3" scope="storage" />
+      <dependency name="typer" version="0.12.5" scope="cli" />
+      <dependency name="wafw00f" version="2.2.0" scope="security" />
+      <dependency name="rich" version="13.9.2" scope="cli" /></dependencies>
+  </artifacts>
+
+  <constraints>      <![CDATA[
+      - Reuses scoring/fingerprinting timestamps from earlier stories.  
+- Keep warnings unobtrusive but visible (Midnight Intelligence amber palette).  
+- Tests should cover boundary conditions (29 vs 30 days).
+
+### Project Structure Notes
+
+- Helper can live in `backend/services/freshness.py`; import wherever needed.  
+- Ensure CLI docs mention how to override SLA.
+
+### References
+
+- [Source: docs/epics.md#story-25-stale-data-warning]  
+- [Source: docs/prd.md#functional-requirements FR22]
+      ]]></constraints>
+  <interfaces>      <interface name="domain_enrich CLI" kind="CLI command" signature="python scripts/domain_enrich.py data/samples/domains.csv [--limit]" path="scripts/domain_enrich.py" /></interfaces>
+  <tests>
+    <standards>      <![CDATA[
+      - [x] domain_enrich.py run Command: `python scripts/domain_enrich.py data/samples/domains.csv` Result: Generated four enriched records in DuckDB, offline heuristics used. - [x] rule_sync/run.py Command: `python scripts/rule_sync/run.py cloudflare --source data/rules/cloudflare_sample.json` Result: Loaded two sample managed rules. - [x] API schema test…
+      ]]></standards>
+    <locations>      <![CDATA[
+      tests/, scripts/, ui/
+      ]]></locations>
+    <ideas>      <![CDATA[
+      AC1: Verify Given a domain row whose `last_observed` is older than the freshness SLA (30 days), when the Streamlit UI renders the Radar table or persona cards, then a warning badge (“Data 37d old – re-run enrichment”) appears inline.; AC2: Verify When a managed rule’s metadata timestamp exceeds the SLA, Rule Transparency views and exports show the same warning badge.; AC3: Verify Persona API responses include a `stale_warning` field so downstream tools (exports, GTM snippets) can display the message.; AC4: Verify Markdown/PDF exports append a footnote listing stale items.; AC5: Verify SLA threshold is configurable via env or settings file; default remains 30 days.
+      ]]></ideas>
+  </tests>
+</story-context>

@@ -1,0 +1,289 @@
+{
+  "summary": {
+    "total": 28,
+    "success": 28,
+    "failed": 0
+  },
+  "results": [
+    {
+      "id": "Q1",
+      "title": "High-Volume IP Addresses",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.3662869930267334,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q2",
+      "title": "Endpoint Request Floods",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.14338302612304688,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q3",
+      "title": "Request Rate Spikes by Time Window",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.14243197441101074,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q4",
+      "title": "Bandwidth Consumption Analysis",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.14184880256652832,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q5",
+      "title": "Successful Requests After WAF Challenges",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.14337420463562012,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q6",
+      "title": "WAF Action Distribution Analysis",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.14443373680114746,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q7",
+      "title": "Repeated Bypass Attempts",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.14233136177062988,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q8",
+      "title": "User-Agent Rotation Patterns",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.14263105392456055,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q9",
+      "title": "Unusual HTTP Methods",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.14307403564453125,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q10",
+      "title": "Status Code Anomalies",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.14310216903686523,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q11",
+      "title": "Geographic Anomalies",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.14362597465515137,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q12",
+      "title": "Request Size Anomalies",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.14293122291564941,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q13",
+      "title": "Bot Score Analysis",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.17811298370361328,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q14",
+      "title": "Known Bot User-Agents",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.14207792282104492,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q15",
+      "title": "Crawl Pattern Detection",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.14087772369384766,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q16",
+      "title": "Request Frequency Analysis",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.1414790153503418,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q17",
+      "title": "SQL Injection Pattern Detection",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.1428520679473877,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q18",
+      "title": "XSS Pattern Detection",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.14205193519592285,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q19",
+      "title": "Path Traversal Detection",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.16449785232543945,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q20",
+      "title": "Command Injection Detection",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.14219975471496582,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q21",
+      "title": "Known Scanner Signatures",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.14724516868591309,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q22",
+      "title": "ASN-Based Attack Clusters",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.14251017570495605,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q23",
+      "title": "Cross-Country Attack Patterns",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.1423029899597168,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q24",
+      "title": "HTTP Method Distribution",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.14377903938293457,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q25",
+      "title": "Top Requested Endpoints",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.14417099952697754,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q26",
+      "title": "IP Reputation Scoring",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.1455519199371338,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q27",
+      "title": "Attack Campaign Detection",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.14215588569641113,
+      "sample_rows": [],
+      "columns": []
+    },
+    {
+      "id": "Q28",
+      "title": "Time-Based Attack Windows",
+      "status": "success",
+      "error": null,
+      "row_count": 0,
+      "execution_time": 0.14251112937927246,
+      "sample_rows": [],
+      "columns": []
+    }
+  ]
+}

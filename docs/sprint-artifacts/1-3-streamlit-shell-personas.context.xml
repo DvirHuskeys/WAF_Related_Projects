@@ -1,0 +1,81 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>3</storyId>
+    <title>Streamlit Shell with Persona Hooks</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-30</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/1-3-streamlit-shell-personas.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>As a GTM user</asA>
+    <iWant>I want the Streamlit app to render domain tables, persona selectors, and empty-state messaging even before data exists</iWant>
+    <soThat>so that I can see the workflow skeleton and understand how GTM Radar will work once data is ingested.</soThat>
+    <tasks>      <![CDATA[
+      - [ ] Implement Streamlit layout per UX spec (AC: 1–3)  
+  - [ ] Add empty-state container with CLI instructions + button to open docs.  
+  - [ ] Render persona selector + placeholder cards pulling dummy narrative text.  
+  - [ ] Add metrics cards + table component wired to DuckDB query (fallback to empty dataframe).  
+- [ ] Integrate services (AC: 2 & 4)  
+  - [ ] Import `backend/services/persona` and `storage` modules; handle missing DB gracefully.  
+  - [ ] Log connection errors and show instruction panel.  
+- [ ] Apply theme + accessibility (AC: 3)  
+  - [ ] Use Midnight Intelligence colors (`docs/ux-color-themes.html`) for buttons/badges.  
+  - [ ] Ensure text contrast meets WCAG AA and components have focus outlines.
+      ]]></tasks>
+  </story>
+
+  <acceptanceCriteria>      <![CDATA[
+      1. Given I run `streamlit run ui/app.py` against an empty DuckDB, when the page loads then I see an empty-state panel telling me to run the enrichment CLI with the exact command.
+2. Persona dropdowns populate from `persona_service.list_personas()` regardless of data availability, and selecting a persona shows placeholder cards referencing the UX spec layout.
+3. Metrics cards (drift/downtime/attack) and domain table placeholders render using Midnight Intelligence theme tokens, with skeleton loaders until real data arrives.
+4. The app reuses the shared storage helper to connect to DuckDB; connection errors show a friendly message with troubleshooting hints.
+      ]]></acceptanceCriteria>
+
+  <artifacts>
+    <docs>      <doc path="docs/sprint-artifacts/1-3-streamlit-shell-personas.md" title="Streamlit Shell with Persona Hooks" section="Story Draft" snippet="As a GTM user, I want the Streamlit app to render domain tables, persona selectors, and empty-state messaging even before data exists, so that I can see the workflow skeleton and understand how GTM Radar will work once data is ingested." />
+      <doc path="docs/epics.md" title="WAF Security - Epic Breakdown" section="Story 1.3" snippet="As a GTM user, I want to open a Streamlit page that renders domain tables and persona dropdowns even before data exists, so I can see the workflow skeleton. **Acceptance Criteria** • **Given** I run `streamlit run ui/app.py` on a clean DB • **When** no domains exist • **Then** the UI shows an empty-state warning referencing enrichment CLI • **And** persona…" />
+      <doc path="docs/prd.md" title="Product Requirements Document" section="Executive Summary" snippet="WAF Security establishes a local-first “insight spine” that combines WAFtotal (vendor-agnostic managed-rule transparency) with GTM Radar (domain fingerprinting + storytelling) so every security, architecture, and GTM conversation starts with evidence instead of guesswork. By harvesting domain signals, normalizing Cloudflare/AWS/Akamai rule packs, and…" />
+      <doc path="docs/architecture.md" title="Architecture Specification" section="Project Context &amp; Goals" snippet="- **Deployment Reality:** Local-first sandbox meant to run entirely on a lone laptop (Streamlit UI, FastAPI services, DuckDB file storage). No cloud infra, no Postgres/React rewrite—lightweight scripts + HTML artifacts are sufficient so iteration stays fast. - **Primary Outcomes:** 1. Fingerprint domains (CLI + FastAPI) and persist results in DuckDB. 2.…" />
+      <doc path="docs/product-brief-WAF Security-2025-11-30.md" title="Product Brief" section="Executive Summary" snippet="WAF Security is building an internal “insight spine” that fuses two sibling ideas—**WAFtotal**, a vendor-agnostic managed-rule transparency experience, and **GTM Radar**, a domain fingerprinting + storytelling engine for sales and marketing teams. Together they deliver three promises: (1) decode any prospect’s WAF/CDN posture in minutes, (2) expose…" />
+      <doc path="docs/research-market-2025-11-30.md" title="Market/Domain Research" section="Executive Summary" snippet="- The global web application firewall (WAF) market is scaling aggressively: SNS Insider pegs it at **USD 6.35 B in 2023 with a path to USD 28.6 B by 2032 (18.2% CAGR)**, while ResearchAndMarkets estimates **USD 6.22 B in 2024 growing to USD 19.2 B by 2033 (13.3% CAGR)**, giving us a triangulated TAM envelope of USD 19–29 B within a decade. - [Source: SNS…" /></docs>
+    <code>      <code path="backend/services/storage.py" kind="service" symbol="get_connection" lines="11-68" reason="Ensures DuckDB schema aligns with sandbox bootstrap expectations." />
+      <code path="ui/app.py" kind="ui" symbol="Streamlit dashboard" lines="1-56" reason="Provides the base Streamlit shell referenced in foundation stories." />
+      <code path="scripts/domain_enrich.py" kind="cli" symbol="main" lines="20-87" reason="Seeds sample data as part of lab initialization smoke tests." /></code>
+    <dependencies>      <dependency name="streamlit" version="1.40.1" scope="ui" />
+      <dependency name="duckdb" version="1.1.3" scope="storage" />
+      <dependency name="typer" version="0.12.5" scope="cli" /></dependencies>
+  </artifacts>
+
+  <constraints>      <![CDATA[
+      - Follow UX design spec Sections “Project & Users” and “Core Experience Principles”: the empty state should keep users oriented and highlight the Radar-to-Story handoff.  
+- Expect to replace placeholders once Stories 2.1–3.4 deliver real data, so isolate UI components into helper functions for reuse.  
+- Keep everything local-first (no external APIs beyond optional wafw00f toggle).  
+- Consider adding Streamlit sidebar nav stubs for upcoming epics (Rule Studio, Admin).
+
+### Project Structure Notes
+
+- `ui/app.py` should import reusable helpers from `backend/services`. Keep Streamlit file slim by delegating domain table rendering to `ui/components.py` if necessary.  
+- No conflicting files detected; follow snake_case for new component modules.
+
+### References
+
+- [Source: docs/epics.md#story-13-streamlit-shell-with-persona-hooks]  
+- [Source: docs/ux-design-specification.md#project--users-project_and_users_confirmed]  
+- [Source: docs/ux-color-themes.html]
+      ]]></constraints>
+  <interfaces>      <interface name="GET /persona/{persona_id}/{domain}" kind="REST endpoint" signature="GET /persona/{persona_id}/{domain}" path="backend/main.py" /></interfaces>
+  <tests>
+    <standards>      <![CDATA[
+      - [x] domain_enrich.py run Command: `python scripts/domain_enrich.py data/samples/domains.csv` Result: Generated four enriched records in DuckDB, offline heuristics used. - [x] rule_sync/run.py Command: `python scripts/rule_sync/run.py cloudflare --source data/rules/cloudflare_sample.json` Result: Loaded two sample managed rules. - [x] API schema test…
+      ]]></standards>
+    <locations>      <![CDATA[
+      tests/, scripts/, ui/
+      ]]></locations>
+    <ideas>      <![CDATA[
+      AC1: Verify Given I run `streamlit run ui/app.py` against an empty DuckDB, when the page loads then I see an empty-state panel telling me to run the enrichment CLI with the exact command.; AC2: Verify Persona dropdowns populate from `persona_service.list_personas()` regardless of data availability, and selecting a persona shows placeholder cards referencing the UX spec layout.; AC3: Verify Metrics cards (drift/downtime/attack) and domain table placeholders render using Midnight Intelligence theme tokens, with skeleton loaders until real data arrives.; AC4: Verify The app reuses the shared storage helper to connect to DuckDB; connection errors show a friendly message with troubleshooting hints.
+      ]]></ideas>
+  </tests>
+</story-context>

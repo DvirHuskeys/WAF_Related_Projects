@@ -1,0 +1,81 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>3</epicId>
+    <storyId>1</storyId>
+    <title>Persona API Endpoint</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-30</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/3-1-persona-api-endpoint.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>As a GTM consumer</asA>
+    <iWant>I want a `/persona/{id}/{domain}` endpoint (and callable function) that returns stack snapshot, scores, freshness warning, and persona metadata</iWant>
+    <soThat></soThat>
+    <tasks>      <![CDATA[
+      - [ ] Service module (AC: 1,5)  
+  - [ ] Update `backend/services/persona.py` to expose `generate_persona_view(persona_id, domain)` returning dict.  
+  - [ ] Include `story_prompt`, `hooks`, `freshness_warning`.  
+- [ ] FastAPI router (AC: 1–4)  
+  - [ ] Add `/persona/{persona_id}/{domain}` route with Pydantic response model.  
+  - [ ] Handle missing domain (404) and invalid persona (400).  
+- [ ] Freshness integration (AC: 1 & 4)  
+  - [ ] Use helper from Story 2.5 to determine warning text.  
+- [ ] Tests / docs (AC: 2–5)  
+  - [ ] Add smokers or unit tests for valid/invalid combos.  
+  - [ ] Document usage in README and Streamlit UI references this endpoint.
+      ]]></tasks>
+  </story>
+
+  <acceptanceCriteria>      <![CDATA[
+      1. Given DuckDB contains a domain record, when I call `/persona/{persona_id}/{domain}` (or the Python function) then the JSON response includes: domain, detected_waf, detected_cdn, drift/downtime/attack scores, freshness warning, persona metadata (name, goal, focus), story prompt, last_updated.
+2. If the domain is missing, the endpoint returns HTTP 404 with JSON error (“domain not found”) without crashing the app.
+3. Persona IDs are case-insensitive and validated against the configuration; invalid IDs return 400 with helpful message.
+4. API response includes a copyable `story_prompt` string and a structured `hooks` array so UI/export can format nicely.
+5. Function doubles as an internal service (Streamlit imports and Python callers use the same logic).
+      ]]></acceptanceCriteria>
+
+  <artifacts>
+    <docs>      <doc path="docs/sprint-artifacts/3-1-persona-api-endpoint.md" title="Persona API Endpoint" section="Story Draft" snippet="As a GTM consumer, I want a `/persona/{id}/{domain}` endpoint (and callable function) that returns stack snapshot, scores, freshness warning, and persona metadata, so any tool (Streamlit, exports, CLI) can fetch persona-ready narratives consistently." />
+      <doc path="docs/epics.md" title="WAF Security - Epic Breakdown" section="Story 3.1" snippet="As a GTM consumer, I want `/persona/{id}/{domain}` to return stack snapshot, scores, freshness, and persona metadata so I can embed it anywhere. **Acceptance Criteria** • **Given** DuckDB contains a domain row • **When** I call the endpoint (or persona function) • **Then** JSON includes domain, detected WAF/CDN, drift/downtime/attack scores, freshness…" />
+      <doc path="docs/prd.md" title="Product Requirements Document" section="Executive Summary" snippet="WAF Security establishes a local-first “insight spine” that combines WAFtotal (vendor-agnostic managed-rule transparency) with GTM Radar (domain fingerprinting + storytelling) so every security, architecture, and GTM conversation starts with evidence instead of guesswork. By harvesting domain signals, normalizing Cloudflare/AWS/Akamai rule packs, and…" />
+      <doc path="docs/architecture.md" title="Architecture Specification" section="Project Context &amp; Goals" snippet="- **Deployment Reality:** Local-first sandbox meant to run entirely on a lone laptop (Streamlit UI, FastAPI services, DuckDB file storage). No cloud infra, no Postgres/React rewrite—lightweight scripts + HTML artifacts are sufficient so iteration stays fast. - **Primary Outcomes:** 1. Fingerprint domains (CLI + FastAPI) and persist results in DuckDB. 2.…" />
+      <doc path="docs/product-brief-WAF Security-2025-11-30.md" title="Product Brief" section="Executive Summary" snippet="WAF Security is building an internal “insight spine” that fuses two sibling ideas—**WAFtotal**, a vendor-agnostic managed-rule transparency experience, and **GTM Radar**, a domain fingerprinting + storytelling engine for sales and marketing teams. Together they deliver three promises: (1) decode any prospect’s WAF/CDN posture in minutes, (2) expose…" />
+      <doc path="docs/research-market-2025-11-30.md" title="Market/Domain Research" section="Executive Summary" snippet="- The global web application firewall (WAF) market is scaling aggressively: SNS Insider pegs it at **USD 6.35 B in 2023 with a path to USD 28.6 B by 2032 (18.2% CAGR)**, while ResearchAndMarkets estimates **USD 6.22 B in 2024 growing to USD 19.2 B by 2033 (13.3% CAGR)**, giving us a triangulated TAM envelope of USD 19–29 B within a decade. - [Source: SNS…" /></docs>
+    <code>      <code path="backend/services/persona.py" kind="service" symbol="generate_persona_view" lines="28-48" reason="Persona payload builder powering API/UI flows in Epic 3." />
+      <code path="backend/services/scoring.py" kind="service" symbol="derive_scores" lines="6-18" reason="Derives persona-ready metrics for story mapping." />
+      <code path="ui/app.py" kind="ui" symbol="Persona card surface" lines="1-56" reason="Renders persona selectors and hooks required by Epic 3 UI work." /></code>
+    <dependencies>      <dependency name="fastapi" version="0.115.2" scope="api" />
+      <dependency name="duckdb" version="1.1.3" scope="storage" />
+      <dependency name="streamlit" version="1.40.1" scope="ui" /></dependencies>
+  </artifacts>
+
+  <constraints>      <![CDATA[
+      - Works with FR5 + FR19; keep persona definitions data-driven (`PERSONA_TEMPLATES`).  
+- Ensure persona service only reads from DuckDB (no network).  
+- Provide `list_personas()` helper for Story 3.4 UI.
+
+### Project Structure Notes
+
+- Routes can live in `backend/services/persona_api.py` or inside `persona.py`; whichever keeps imports simple for Streamlit.  
+- Keep code importable by Streamlit (avoid starting a standalone FastAPI server).
+
+### References
+
+- [Source: docs/epics.md#story-31-persona-api-endpoint]  
+- [Source: docs/prd.md#functional-requirements FR5, FR19]
+      ]]></constraints>
+  <interfaces>      <interface name="GET /persona/{persona_id}/{domain}" kind="REST endpoint" signature="GET /persona/{persona_id}/{domain}" path="backend/main.py" /></interfaces>
+  <tests>
+    <standards>      <![CDATA[
+      - [x] domain_enrich.py run Command: `python scripts/domain_enrich.py data/samples/domains.csv` Result: Generated four enriched records in DuckDB, offline heuristics used. - [x] rule_sync/run.py Command: `python scripts/rule_sync/run.py cloudflare --source data/rules/cloudflare_sample.json` Result: Loaded two sample managed rules. - [x] API schema test…
+      ]]></standards>
+    <locations>      <![CDATA[
+      tests/, scripts/, ui/
+      ]]></locations>
+    <ideas>      <![CDATA[
+      AC1: Verify Given DuckDB contains a domain record, when I call `/persona/{persona_id}/{domain}` (or the Python function) then the JSON response includes: domain, detected_waf, detected_cdn, drift/downtime/attack scores, freshness warning, persona metadata (name, goal, focus), story prompt, last_updated.; AC2: Verify If the domain is missing, the endpoint returns HTTP 404 with JSON error (“domain not found”) without crashing the app.; AC3: Verify Persona IDs are case-insensitive and validated against the configuration; invalid IDs return 400 with helpful message.; AC4: Verify API response includes a copyable `story_prompt` string and a structured `hooks` array so UI/export can format nicely.; AC5: Verify Function doubles as an internal service (Streamlit imports and Python callers use the same logic).
+      ]]></ideas>
+  </tests>
+</story-context>

@@ -1,0 +1,84 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>4</storyId>
+    <title>Enrichment Status & CLI Flags</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-30</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/2-4-enrichment-status-cli-flags.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>As an operator</asA>
+    <iWant>I want enrichment and rule-sync CLIs to report progress, log runs, and support standard flags</iWant>
+    <soThat></soThat>
+    <tasks>      <![CDATA[
+      - [ ] Progress output (AC: 1)  
+  - [ ] Integrate Rich progress bars into enrichment & rule sync CLIs.  
+  - [ ] Ensure logging doesn’t spam when running with `--limit`.  
+- [ ] Flag wiring (AC: 2)  
+  - [ ] Define Typer options in shared helper; validate combinations.  
+  - [ ] Pass flags down to pipeline functions (dry run, vendor override, etc.).  
+- [ ] Job logging (AC: 3)  
+  - [ ] Create `job_runs` table via init script.  
+  - [ ] Add helper to insert start/end records with status + counters in `details`.  
+- [ ] Docs (AC: 4–5)  
+  - [ ] Update README/Makefile sections with flag descriptions.  
+  - [ ] Print job_id hint at the end of each CLI run.
+      ]]></tasks>
+  </story>
+
+  <acceptanceCriteria>      <![CDATA[
+      1. Each CLI (domain enrichment and rule sync) prints a Rich/Typer progress display showing current domain/vendor and overall counts; fatal errors exit non-zero with clear messaging.
+2. Both CLIs support shared flags: `--limit`, `--vendor`, `--source`, `--dry-run` (where applicable). Invalid flag combinations raise helpful errors.
+3. CLI creates/updates a `job_runs` DuckDB table with columns: `job_id`, `job_type` (enrich/rule_sync), `started_at`, `finished_at`, `status`, `details` (JSON).
+4. On completion (success or failure), CLI prints “Job recorded as <job_id>” so operators can inspect the log later.
+5. README/Makefile mention the available flags and describe where job logs are stored.
+      ]]></acceptanceCriteria>
+
+  <artifacts>
+    <docs>      <doc path="docs/sprint-artifacts/2-4-enrichment-status-cli-flags.md" title="Enrichment Status &amp; CLI Flags" section="Story Draft" snippet="As an operator, I want enrichment and rule-sync CLIs to report progress, log runs, and support standard flags, so I can monitor jobs and troubleshoot failures without rerunning everything." />
+      <doc path="docs/epics.md" title="WAF Security - Epic Breakdown" section="Story 2.4" snippet="As an operator, I want CLI output and stored status rows so I know whether enrichment/sync succeeded. **Acceptance Criteria** • **Given** I run either CLI • **When** processing begins • **Then** the CLI prints a progress bar and writes start/end timestamps plus status to a `job_runs` DuckDB table • **And** both CLIs honor `--limit`, `--vendor`, `--source`…" />
+      <doc path="docs/prd.md" title="Product Requirements Document" section="Executive Summary" snippet="WAF Security establishes a local-first “insight spine” that combines WAFtotal (vendor-agnostic managed-rule transparency) with GTM Radar (domain fingerprinting + storytelling) so every security, architecture, and GTM conversation starts with evidence instead of guesswork. By harvesting domain signals, normalizing Cloudflare/AWS/Akamai rule packs, and…" />
+      <doc path="docs/architecture.md" title="Architecture Specification" section="Project Context &amp; Goals" snippet="- **Deployment Reality:** Local-first sandbox meant to run entirely on a lone laptop (Streamlit UI, FastAPI services, DuckDB file storage). No cloud infra, no Postgres/React rewrite—lightweight scripts + HTML artifacts are sufficient so iteration stays fast. - **Primary Outcomes:** 1. Fingerprint domains (CLI + FastAPI) and persist results in DuckDB. 2.…" />
+      <doc path="docs/product-brief-WAF Security-2025-11-30.md" title="Product Brief" section="Executive Summary" snippet="WAF Security is building an internal “insight spine” that fuses two sibling ideas—**WAFtotal**, a vendor-agnostic managed-rule transparency experience, and **GTM Radar**, a domain fingerprinting + storytelling engine for sales and marketing teams. Together they deliver three promises: (1) decode any prospect’s WAF/CDN posture in minutes, (2) expose…" />
+      <doc path="docs/research-market-2025-11-30.md" title="Market/Domain Research" section="Executive Summary" snippet="- The global web application firewall (WAF) market is scaling aggressively: SNS Insider pegs it at **USD 6.35 B in 2023 with a path to USD 28.6 B by 2032 (18.2% CAGR)**, while ResearchAndMarkets estimates **USD 6.22 B in 2024 growing to USD 19.2 B by 2033 (13.3% CAGR)**, giving us a triangulated TAM envelope of USD 19–29 B within a decade. - [Source: SNS…" /></docs>
+    <code>      <code path="scripts/domain_enrich.py" kind="cli" symbol="main" lines="20-87" reason="Implements CSV ingestion pipeline for enrichment CLIs." />
+      <code path="backend/services/fingerprint.py" kind="service" symbol="detect_stack" lines="21-51" reason="Detects WAF/CDN stacks and scoring heuristics reused across Epic 2." />
+      <code path="backend/services/storage.py" kind="service" symbol="get_connection" lines="11-68" reason="Persists enrichment + rule sync results mentioned in pipeline stories." /></code>
+    <dependencies>      <dependency name="duckdb" version="1.1.3" scope="storage" />
+      <dependency name="typer" version="0.12.5" scope="cli" />
+      <dependency name="wafw00f" version="2.2.0" scope="security" />
+      <dependency name="rich" version="13.9.2" scope="cli" /></dependencies>
+  </artifacts>
+
+  <constraints>      <![CDATA[
+      - Leverage existing DuckDB connection helper; consider context manager for logging start/end.  
+- `details` JSON can store counts (processed, inserted, skipped).  
+- Keep CLI defaults minimal so local dev isn’t overwhelmed.
+
+### Project Structure Notes
+
+- Job logging helpers could live in `backend/services/jobs.py`; both CLIs import shared utilities.  
+- Ensure script names stay snake_case and Typer apps remain in `scripts/`.
+
+### References
+
+- [Source: docs/epics.md#story-24-enrichment-status--cli-flags]  
+- [Source: docs/prd.md#functional-requirements FR4, FR21]  
+- [Source: docs/architecture.md#6-operational-notes]
+      ]]></constraints>
+  <interfaces>      <interface name="domain_enrich CLI" kind="CLI command" signature="python scripts/domain_enrich.py data/samples/domains.csv [--limit]" path="scripts/domain_enrich.py" /></interfaces>
+  <tests>
+    <standards>      <![CDATA[
+      - [x] domain_enrich.py run Command: `python scripts/domain_enrich.py data/samples/domains.csv` Result: Generated four enriched records in DuckDB, offline heuristics used. - [x] rule_sync/run.py Command: `python scripts/rule_sync/run.py cloudflare --source data/rules/cloudflare_sample.json` Result: Loaded two sample managed rules. - [x] API schema test…
+      ]]></standards>
+    <locations>      <![CDATA[
+      tests/, scripts/, ui/
+      ]]></locations>
+    <ideas>      <![CDATA[
+      AC1: Verify Each CLI (domain enrichment and rule sync) prints a Rich/Typer progress display showing current domain/vendor and overall counts; fatal errors exit non-zero with clear messaging.; AC2: Verify Both CLIs support shared flags: `--limit`, `--vendor`, `--source`, `--dry-run` (where applicable). Invalid flag combinations raise helpful errors.; AC3: Verify CLI creates/updates a `job_runs` DuckDB table with columns: `job_id`, `job_type` (enrich/rule_sync), `started_at`, `finished_at`, `status`, `details` (JSON).; AC4: Verify On completion (success or failure), CLI prints “Job recorded as <job_id>” so operators can inspect the log later.; AC5: Verify README/Makefile mention the available flags and describe where job logs are stored.
+      ]]></ideas>
+  </tests>
+</story-context>

@@ -1,0 +1,92 @@
+{
+  "traffic_overview": {
+    "name": "Traffic Overview",
+    "result": {
+      "success": true,
+      "rows": [],
+      "columns": [],
+      "row_count": 0
+    }
+  },
+  "top_attacking_ips": {
+    "name": "Top Attacking IPs",
+    "result": {
+      "success": true,
+      "rows": [],
+      "columns": [],
+      "row_count": 0
+    }
+  },
+  "most_targeted_endpoints": {
+    "name": "Most Targeted Endpoints",
+    "result": {
+      "success": true,
+      "rows": [],
+      "columns": [],
+      "row_count": 0
+    }
+  },
+  "waf_action_distribution": {
+    "name": "WAF Action Distribution",
+    "result": {
+      "success": true,
+      "rows": [],
+      "columns": [],
+      "row_count": 0
+    }
+  },
+  "http_method_distribution": {
+    "name": "HTTP Method Distribution",
+    "result": {
+      "success": true,
+      "rows": [],
+      "columns": [],
+      "row_count": 0
+    }
+  },
+  "status_code_distribution": {
+    "name": "Status Code Distribution",
+    "result": {
+      "success": true,
+      "rows": [],
+      "columns": [],
+      "row_count": 0
+    }
+  },
+  "attack_types": {
+    "name": "Attack Type Breakdown",
+    "result": {
+      "success": true,
+      "rows": [],
+      "columns": [],
+      "row_count": 0
+    }
+  },
+  "geographic_distribution": {
+    "name": "Geographic Distribution",
+    "result": {
+      "success": true,
+      "rows": [],
+      "columns": [],
+      "row_count": 0
+    }
+  },
+  "bot_analysis": {
+    "name": "Bot Traffic Analysis",
+    "result": {
+      "success": true,
+      "rows": [],
+      "columns": [],
+      "row_count": 0
+    }
+  },
+  "suspicious_patterns": {
+    "name": "Suspicious Request Patterns",
+    "result": {
+      "success": true,
+      "rows": [],
+      "columns": [],
+      "row_count": 0
+    }
+  }
+}

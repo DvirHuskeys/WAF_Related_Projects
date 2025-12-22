@@ -1,0 +1,44 @@
+{
+  "Show Catalogs": {
+    "success": true,
+    "rows": [],
+    "columns": [],
+    "row_count": 0
+  },
+  "Show Schemas in waf_logs_db": {
+    "success": true,
+    "rows": [],
+    "columns": [],
+    "row_count": 0
+  },
+  "Show Tables in waf_logs_db.default": {
+    "success": true,
+    "rows": [],
+    "columns": [],
+    "row_count": 0
+  },
+  "Show Columns in quillbot_waf_logs_huskeys_copy": {
+    "success": true,
+    "rows": [],
+    "columns": [],
+    "row_count": 0
+  },
+  "Describe Table": {
+    "success": true,
+    "rows": [],
+    "columns": [],
+    "row_count": 0
+  },
+  "Check Table Exists": {
+    "success": true,
+    "rows": [],
+    "columns": [],
+    "row_count": 0
+  },
+  "Sample Query (no WHERE)": {
+    "success": true,
+    "rows": [],
+    "columns": [],
+    "row_count": 0
+  }
+}

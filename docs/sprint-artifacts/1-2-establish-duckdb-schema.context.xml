@@ -1,0 +1,80 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>2</storyId>
+    <title>Establish DuckDB Schema</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-30</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/1-2-establish-duckdb-schema.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>As a developer</asA>
+    <iWant>I want a repeatable script that creates the DuckDB database and required tables</iWant>
+    <soThat>so that enrichment and rule-sync jobs can persist records without manual SQL.</soThat>
+    <tasks>      <![CDATA[
+      - [ ] Implement `scripts/init_duckdb.py` (AC: 1,4)  
+  - [ ] Use `duckdb.connect("data/warehouse.db")` and execute the CREATE TABLE statements from PRD.  
+  - [ ] Enable JSON extension (`INSTALL/LOAD json`) before creating tables.  
+- [ ] Make migration idempotent (AC: 2)  
+  - [ ] Wrap CREATE statements with `CREATE TABLE IF NOT EXISTS` or check catalog before creation.  
+  - [ ] Add sanity check query that prints table counts after creation.  
+- [ ] Developer ergonomics (AC: 3)  
+  - [ ] Document the command in README/Makefile.  
+  - [ ] Emit clear console output (success + next steps).
+      ]]></tasks>
+  </story>
+
+  <acceptanceCriteria>      <![CDATA[
+      1. Given I run `python scripts/init_duckdb.py` (or the equivalent storage helper), when `data/warehouse.db` does not exist, then tables `domain_enrichment` and `managed_rules` are created with the columns defined in the PRD (including JSON fields).
+2. Re-running the script is idempotent: schema creation does not fail if the database or tables already exist.
+3. The script prints success/failure messaging and exits non‑zero on fatal errors; docs/README reference the command.
+4. JSON support is enabled in DuckDB so `raw` and `metadata` columns accept structured content.
+      ]]></acceptanceCriteria>
+
+  <artifacts>
+    <docs>      <doc path="docs/sprint-artifacts/1-2-establish-duckdb-schema.md" title="Establish DuckDB Schema" section="Story Draft" snippet="As a developer, I want a repeatable script that creates the DuckDB database and required tables, so that enrichment and rule-sync jobs can persist records without manual SQL." />
+      <doc path="docs/epics.md" title="WAF Security - Epic Breakdown" section="Story 1.2" snippet="As a developer, I want a repeatable script that creates the DuckDB database and required tables so enrichment jobs have a place to persist records. **Acceptance Criteria** • **Given** I run `python scripts/init_duckdb.py` • **When** `data/warehouse.db` does not exist • **Then** tables `domain_enrichment` and `managed_rules` are created with PRD columns •…" />
+      <doc path="docs/prd.md" title="Product Requirements Document" section="Executive Summary" snippet="WAF Security establishes a local-first “insight spine” that combines WAFtotal (vendor-agnostic managed-rule transparency) with GTM Radar (domain fingerprinting + storytelling) so every security, architecture, and GTM conversation starts with evidence instead of guesswork. By harvesting domain signals, normalizing Cloudflare/AWS/Akamai rule packs, and…" />
+      <doc path="docs/architecture.md" title="Architecture Specification" section="Project Context &amp; Goals" snippet="- **Deployment Reality:** Local-first sandbox meant to run entirely on a lone laptop (Streamlit UI, FastAPI services, DuckDB file storage). No cloud infra, no Postgres/React rewrite—lightweight scripts + HTML artifacts are sufficient so iteration stays fast. - **Primary Outcomes:** 1. Fingerprint domains (CLI + FastAPI) and persist results in DuckDB. 2.…" />
+      <doc path="docs/product-brief-WAF Security-2025-11-30.md" title="Product Brief" section="Executive Summary" snippet="WAF Security is building an internal “insight spine” that fuses two sibling ideas—**WAFtotal**, a vendor-agnostic managed-rule transparency experience, and **GTM Radar**, a domain fingerprinting + storytelling engine for sales and marketing teams. Together they deliver three promises: (1) decode any prospect’s WAF/CDN posture in minutes, (2) expose…" />
+      <doc path="docs/research-market-2025-11-30.md" title="Market/Domain Research" section="Executive Summary" snippet="- The global web application firewall (WAF) market is scaling aggressively: SNS Insider pegs it at **USD 6.35 B in 2023 with a path to USD 28.6 B by 2032 (18.2% CAGR)**, while ResearchAndMarkets estimates **USD 6.22 B in 2024 growing to USD 19.2 B by 2033 (13.3% CAGR)**, giving us a triangulated TAM envelope of USD 19–29 B within a decade. - [Source: SNS…" /></docs>
+    <code>      <code path="backend/services/storage.py" kind="service" symbol="get_connection" lines="11-68" reason="Ensures DuckDB schema aligns with sandbox bootstrap expectations." />
+      <code path="ui/app.py" kind="ui" symbol="Streamlit dashboard" lines="1-56" reason="Provides the base Streamlit shell referenced in foundation stories." />
+      <code path="scripts/domain_enrich.py" kind="cli" symbol="main" lines="20-87" reason="Seeds sample data as part of lab initialization smoke tests." /></code>
+    <dependencies>      <dependency name="streamlit" version="1.40.1" scope="ui" />
+      <dependency name="duckdb" version="1.1.3" scope="storage" />
+      <dependency name="typer" version="0.12.5" scope="cli" /></dependencies>
+  </artifacts>
+
+  <constraints>      <![CDATA[
+      - Aligns with architecture goal of keeping everything local-first (`docs/architecture.md#1-project-context--goals`).  
+- Schema definitions come straight from `docs/prd.md#functional-requirements` → Intelligence Harvesting & Rule Transparency sections.  
+- Script should live under `scripts/` per project structure established in Story 1.1; reuse the same virtualenv instructions.  
+- Future epics (radar, persona) depend on these tables, so include simple validation query (e.g., `duckdb.sql("DESCRIBE domain_enrichment")`) after creation.
+
+### Project Structure Notes
+
+- Place the script in `scripts/` and update the root README/Makefile created in Story 1.1 so the bootstrap sequence becomes: create venv → run `init_duckdb.py` → seed sample data.  
+- Ensure `backend/services/storage.py` exposes helper functions that the CLI and Streamlit UI can reuse (avoid duplicate SQL). No path conflicts detected.
+
+### References
+
+- [Source: docs/epics.md#epic-1-foundation-sandbox--data-layer]  
+- [Source: docs/prd.md#functional-requirements]  
+- [Source: docs/architecture.md#5-data-model-snapshot-duckdb]
+      ]]></constraints>
+  <interfaces>      <interface name="FastAPI admin endpoints" kind="REST endpoint" signature="GET /personas" path="backend/main.py" /></interfaces>
+  <tests>
+    <standards>      <![CDATA[
+      - [x] domain_enrich.py run Command: `python scripts/domain_enrich.py data/samples/domains.csv` Result: Generated four enriched records in DuckDB, offline heuristics used. - [x] rule_sync/run.py Command: `python scripts/rule_sync/run.py cloudflare --source data/rules/cloudflare_sample.json` Result: Loaded two sample managed rules. - [x] API schema test…
+      ]]></standards>
+    <locations>      <![CDATA[
+      tests/, scripts/, ui/
+      ]]></locations>
+    <ideas>      <![CDATA[
+      AC1: Verify Given I run `python scripts/init_duckdb.py` (or the equivalent storage helper), when `data/warehouse.db` does not exist, then tables `domain_enrichment` and `managed_rules` are created with the columns defined in the PRD (including JSON fields).; AC2: Verify Re-running the script is idempotent: schema creation does not fail if the database or tables already exist.; AC3: Verify The script prints success/failure messaging and exits non‑zero on fatal errors; docs/README reference the command.; AC4: Verify JSON support is enabled in DuckDB so `raw` and `metadata` columns accept structured content.
+      ]]></ideas>
+  </tests>
+</story-context>

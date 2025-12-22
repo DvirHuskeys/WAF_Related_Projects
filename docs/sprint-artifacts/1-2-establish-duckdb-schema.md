@@ -1,6 +1,6 @@
 # Story 1.2: Establish DuckDB Schema
 
-Status: drafted
+Status: review
 
 ## Story
 
@@ -17,15 +17,15 @@ so that enrichment and rule-sync jobs can persist records without manual SQL.
 
 ## Tasks / Subtasks
 
-- [ ] Implement `scripts/init_duckdb.py` (AC: 1,4)  
-  - [ ] Use `duckdb.connect("data/warehouse.db")` and execute the CREATE TABLE statements from PRD.  
-  - [ ] Enable JSON extension (`INSTALL/LOAD json`) before creating tables.  
-- [ ] Make migration idempotent (AC: 2)  
-  - [ ] Wrap CREATE statements with `CREATE TABLE IF NOT EXISTS` or check catalog before creation.  
-  - [ ] Add sanity check query that prints table counts after creation.  
-- [ ] Developer ergonomics (AC: 3)  
-  - [ ] Document the command in README/Makefile.  
-  - [ ] Emit clear console output (success + next steps).
+- [x] Implement `scripts/init_duckdb.py` (AC: 1,4)  
+  - [x] Use `duckdb.connect("data/warehouse.db")` and execute the CREATE TABLE statements from PRD.  
+  - [x] Enable JSON extension (`INSTALL/LOAD json`) before creating tables.  
+- [x] Make migration idempotent (AC: 2)  
+  - [x] Wrap CREATE statements with `CREATE TABLE IF NOT EXISTS` or check catalog before creation.  
+  - [x] Add sanity check query that prints table counts after creation.  
+- [x] Developer ergonomics (AC: 3)  
+  - [x] Document the command in README/Makefile.  
+  - [x] Emit clear console output (success + next steps).
 
 ## Dev Notes
 
@@ -49,15 +49,34 @@ so that enrichment and rule-sync jobs can persist records without manual SQL.
 
 ### Context Reference
 
-<!-- story-context XML will be referenced once generated -->
+- docs/sprint-artifacts/1-2-establish-duckdb-schema.context.xml
+
 
 ### Agent Model Used
 
-_TBD during implementation_
+GPT-5.1 Codex
 
 ### Debug Log References
 
+- 2025-11-30: Added JSON extension loading + `initialize_schema()` helper inside `backend/services/storage.py` so app code and CLI share the same bootstrap logic.
+- 2025-11-30: Authored `scripts/init_duckdb.py`, wired it into `make init-db`, and ran it locally to confirm success output (row counts + next-step guidance).
+- 2025-11-30: Updated README bootstrap instructions, added the Makefile target, and expanded `tests/test_schema.py` to cover idempotent initialization; finished with `make test`.
+
 ### Completion Notes List
+
+- `scripts/init_duckdb.py` now installs/loads the JSON extension, creates tables via `storage.initialize_schema()`, and reports row counts.
+- README/Makefile instruct devs to run `make init-db`, keeping the bootstrap workflow in sync with Story 1.1.
+- Regression coverage includes the new schema initializer test and a full `make test` run.
 
 ### File List
 
+- `backend/services/storage.py`
+- `scripts/init_duckdb.py`
+- `Makefile`
+- `README.md`
+- `tests/test_schema.py`
+- `docs/sprint-artifacts/sprint-status.yaml`
+
+## Change Log
+
+- 2025-11-30: Implemented DuckDB initialization script, documentation updates, and schema regression tests; story marked ready for review.

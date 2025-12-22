@@ -1,13 +1,29 @@
 from __future__ import annotations
 
-from typing import Dict
+import random
+from typing import Dict, List, Tuple
+
+from backend.services import hooks as hook_loader
+
+SCORE_SEED_OFFSET = 42
 
 
-def derive_scores(record: Dict) -> Dict[str, float]:
+def derive_scores(domain: str, waf_name: str) -> Dict[str, float]:
+    base_seed = hash(domain) + SCORE_SEED_OFFSET
+    random.seed(base_seed)
+    config_drift = round(min(1.0, 0.35 + random.random()), 2)
+    downtime_risk = round(min(1.0, 0.25 + random.random()), 2)
+    attack_surface = round(min(1.0, 0.2 + random.random()), 2)
+
+    if waf_name == "cloudflare":
+        config_drift = min(1.0, config_drift + 0.1)
+    if waf_name == "aws_waf":
+        attack_surface = min(1.0, attack_surface + 0.08)
+
     scores = {
-        "config_drift": float(record.get("config_drift_score", 0.0)),
-        "downtime_risk": float(record.get("downtime_risk_score", 0.0)),
-        "attack_surface": float(record.get("attack_surface_score", 0.0)),
+        "config_drift": config_drift,
+        "downtime_risk": downtime_risk,
+        "attack_surface": attack_surface,
     }
     scores["priority_index"] = round(
         (scores["config_drift"] * 0.4)
@@ -18,34 +34,43 @@ def derive_scores(record: Dict) -> Dict[str, float]:
     return scores
 
 
-def build_story(persona_id: str, record: Dict, scores: Dict[str, float]) -> str:
+def build_story(
+    persona_id: str, record: Dict, scores: Dict[str, float]
+) -> Tuple[str, List[Dict[str, str]]]:
     waf = record.get("detected_waf", "unknown WAF")
     cdn = record.get("detected_cdn", "unknown CDN")
 
-    if persona_id == "ae":
-        hooks = []
-        if scores["config_drift"] > 0.6:
-            hooks.append("lead with configuration coherence and drift prevention")
-        if scores["downtime_risk"] > 0.5:
-            hooks.append("highlight proactive failover and runbook automation")
-        if not hooks:
-            hooks.append("position unified visibility as a quick win")
-        return (
-            f"{record['domain']} appears to run {waf} in front of {cdn}. "
-            f"Priority index {scores['priority_index']:.2f}. "
-            f"{' & '.join(hooks)}."
+    persona_hooks = hook_loader.get_hooks_for_persona(persona_id)
+    matched_hooks: List[Dict[str, str]] = []
+    for hook in persona_hooks:
+        score_key = hook.get("score")
+        threshold = hook.get("min", 0)
+        if not score_key:
+            continue
+        if scores.get(score_key, 0) >= threshold:
+            matched_hooks.append(
+                {
+                    "id": hook.get("id", score_key),
+                    "title": hook.get("title", ""),
+                    "description": hook.get("description", ""),
+                    "score_reason": f"{score_key}={scores.get(score_key, 0):.2f}",
+                }
+            )
+    if not matched_hooks and persona_hooks:
+        hook = persona_hooks[-1]
+        matched_hooks.append(
+            {
+                "id": hook.get("id", "default"),
+                "title": hook.get("title", ""),
+                "description": hook.get("description", ""),
+                "score_reason": hook.get("score", ""),
+            }
         )
 
-    if persona_id == "ciso":
-        highlight = (
-            "Rule overlap looks thin compared to peers—show the rule remix demo."
-            if scores["attack_surface"] > 0.55
-            else "Use the WAFtotal explorer to contrast vendor philosophy."
-        )
-        return (
-            f"{record['domain']} likely leans on {waf}. "
-            f"Attack surface score {scores['attack_surface']:.2f}. {highlight}"
-        )
-
-    return "No story available yet."
+    hook_text = " ".join(h["description"] for h in matched_hooks)
+    story = (
+        f"{record['domain']} appears to run {waf} in front of {cdn}. "
+        f"Priority index {scores['priority_index']:.2f}. {hook_text}"
+    )
+    return story, matched_hooks
 

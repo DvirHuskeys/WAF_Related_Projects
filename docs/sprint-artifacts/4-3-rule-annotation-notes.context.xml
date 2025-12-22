@@ -1,0 +1,79 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>4</epicId>
+    <storyId>3</storyId>
+    <title>Rule Annotation Notes</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-30</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/4-3-rule-annotation-notes.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>As security teams</asA>
+    <iWant>I want to attach annotations to managed rules (e.g., “Customer X overrides threshold”)</iWant>
+    <soThat></soThat>
+    <tasks>      <![CDATA[
+      - [ ] Notes table + helper (AC: 1–3)  
+  - [ ] Create `rule_notes` table similar to other tables; add helper functions to insert/update/delete.  
+- [ ] UI integration (AC: 1–3)  
+  - [ ] “Add Note” button in Rule Explorer + Drawer; use Streamlit form.  
+  - [ ] Notes list with edit/delete buttons (respect RBAC).  
+- [ ] Export integration (AC: 4)  
+  - [ ] When exporting rule briefs, include notes section.  
+- [ ] Messaging (AC: 5)  
+  - [ ] Add copy explaining purpose of notes in UI.
+      ]]></tasks>
+  </story>
+
+  <acceptanceCriteria>      <![CDATA[
+      1. From the Rule Explorer or Drawer (Story 4.2), selecting a rule and clicking “Add Note” opens a text input supporting Markdown; saving persists to DuckDB `rule_notes` table with columns `note_id`, `rule_id`, `author`, `timestamp`, `content`.
+2. Existing notes display in the drawer under a “Notes” tab with author + timestamp; notes are sorted newest-first.
+3. Notes can be edited/deleted by the same author (or admin). Actions are logged to `activity_log` (Epic 6).
+4. Persona/report exports include relevant notes for the rules referenced in the story.
+5. Empty-state messaging explains that annotations help track customer-specific tweaks.
+      ]]></acceptanceCriteria>
+
+  <artifacts>
+    <docs>      <doc path="docs/sprint-artifacts/4-3-rule-annotation-notes.md" title="Rule Annotation Notes" section="Story Draft" snippet="As security teams, I want to attach annotations to managed rules (e.g., “Customer X overrides threshold”), so institutional knowledge stays in context when comparing vendor rules." />
+      <doc path="docs/epics.md" title="WAF Security - Epic Breakdown" section="Story 4.3" snippet="As security teams, we want to attach annotations to rules (e.g., “Customer X overrides threshold”) so institutional knowledge stays in context. **Acceptance Criteria** • **Given** I view a rule • **When** I add a note and click Save • **Then** the note persists to DuckDB `rule_notes` with author + timestamp and displays for anyone viewing that rule…" />
+      <doc path="docs/prd.md" title="Product Requirements Document" section="Executive Summary" snippet="WAF Security establishes a local-first “insight spine” that combines WAFtotal (vendor-agnostic managed-rule transparency) with GTM Radar (domain fingerprinting + storytelling) so every security, architecture, and GTM conversation starts with evidence instead of guesswork. By harvesting domain signals, normalizing Cloudflare/AWS/Akamai rule packs, and…" />
+      <doc path="docs/architecture.md" title="Architecture Specification" section="Project Context &amp; Goals" snippet="- **Deployment Reality:** Local-first sandbox meant to run entirely on a lone laptop (Streamlit UI, FastAPI services, DuckDB file storage). No cloud infra, no Postgres/React rewrite—lightweight scripts + HTML artifacts are sufficient so iteration stays fast. - **Primary Outcomes:** 1. Fingerprint domains (CLI + FastAPI) and persist results in DuckDB. 2.…" />
+      <doc path="docs/product-brief-WAF Security-2025-11-30.md" title="Product Brief" section="Executive Summary" snippet="WAF Security is building an internal “insight spine” that fuses two sibling ideas—**WAFtotal**, a vendor-agnostic managed-rule transparency experience, and **GTM Radar**, a domain fingerprinting + storytelling engine for sales and marketing teams. Together they deliver three promises: (1) decode any prospect’s WAF/CDN posture in minutes, (2) expose…" />
+      <doc path="docs/research-market-2025-11-30.md" title="Market/Domain Research" section="Executive Summary" snippet="- The global web application firewall (WAF) market is scaling aggressively: SNS Insider pegs it at **USD 6.35 B in 2023 with a path to USD 28.6 B by 2032 (18.2% CAGR)**, while ResearchAndMarkets estimates **USD 6.22 B in 2024 growing to USD 19.2 B by 2033 (13.3% CAGR)**, giving us a triangulated TAM envelope of USD 19–29 B within a decade. - [Source: SNS…" /></docs>
+    <code>      <code path="scripts/rule_sync/run.py" kind="cli" symbol="main entry" lines="1-120" reason="Normalizes vendor rule packs for Rule Transparency Studio stories." />
+      <code path="scripts/rule_sync/cloudflare.py" kind="adapter" symbol="load_rules" lines="1-120" reason="Concrete adapter showing how vendor rules are parsed and exposed." />
+      <code path="backend/services/storage.py" kind="service" symbol="managed_rules schema" lines="18-47" reason="Stores normalized rules used by grid/comparison/annotation flows." /></code>
+    <dependencies>      <dependency name="duckdb" version="1.1.3" scope="storage" />
+      <dependency name="pandas" version="2.2.3" scope="data" />
+      <dependency name="python-whois" version="0.8.0" scope="intel" /></dependencies>
+  </artifacts>
+
+  <constraints>      <![CDATA[
+      - Align with FR24 (annotations).  
+- Consider storing `author` from env/role selection (since no auth system yet).  
+- Keep deletion soft (set `deleted_at`) for audit trail.
+
+### Project Structure Notes
+
+- Helpers likely belong in `backend/services/rules.py`.  
+- UI forms should appear inside Drawer’s “Notes” section.
+
+### References
+
+- [Source: docs/epics.md#story-43-rule-annotation-notes]  
+- [Source: docs/prd.md#functional-requirements FR24]
+      ]]></constraints>
+  <interfaces>      <interface name="rule_sync adapter runner" kind="CLI command" signature="python scripts/rule_sync/run.py cloudflare --source data/rules/cloudflare_sample.json" path="scripts/rule_sync/run.py" /></interfaces>
+  <tests>
+    <standards>      <![CDATA[
+      - [x] domain_enrich.py run Command: `python scripts/domain_enrich.py data/samples/domains.csv` Result: Generated four enriched records in DuckDB, offline heuristics used. - [x] rule_sync/run.py Command: `python scripts/rule_sync/run.py cloudflare --source data/rules/cloudflare_sample.json` Result: Loaded two sample managed rules. - [x] API schema test…
+      ]]></standards>
+    <locations>      <![CDATA[
+      tests/, scripts/, ui/
+      ]]></locations>
+    <ideas>      <![CDATA[
+      AC1: Verify From the Rule Explorer or Drawer (Story 4.2), selecting a rule and clicking “Add Note” opens a text input supporting Markdown; saving persists to DuckDB `rule_notes` table with columns `note_id`, `rule_id`, `author`, `timestamp`, `content`.; AC2: Verify Existing notes display in the drawer under a “Notes” tab with author + timestamp; notes are sorted newest-first.; AC3: Verify Notes can be edited/deleted by the same author (or admin). Actions are logged to `activity_log` (Epic 6).; AC4: Verify Persona/report exports include relevant notes for the rules referenced in the story.; AC5: Verify Empty-state messaging explains that annotations help track customer-specific tweaks.
+      ]]></ideas>
+  </tests>
+</story-context>

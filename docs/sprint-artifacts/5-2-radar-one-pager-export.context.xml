@@ -1,0 +1,81 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>5</epicId>
+    <storyId>2</storyId>
+    <title>GTM Radar One-Pager Export</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-30</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/5-2-radar-one-pager-export.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>As AE Alex</asA>
+    <iWant>I want to click “Generate Radar Summary” for a domain and receive a Markdown/PDF one-pager</iWant>
+    <soThat></soThat>
+    <tasks>      <![CDATA[
+      - [ ] Template + renderer (AC: 1–3)  
+  - [ ] Create Jinja template for radar summary; include placeholders per acceptance criteria.  
+  - [ ] Implement export helper that writes Markdown and optionally PDF.  
+- [ ] UI integration (AC: 1–4)  
+  - [ ] Add “Generate Radar Summary” button to dashboard or persona cards.  
+  - [ ] Show preview (e.g., `st.markdown` with template output).  
+  - [ ] Provide download link + toast.  
+- [ ] CLI entry point (optional) (AC: 5)  
+  - [ ] Add `scripts/export_radar_summary.py` for automation.  
+- [ ] Docs (AC: 5)  
+  - [ ] Update README/Makefile with usage instructions.
+      ]]></tasks>
+  </story>
+
+  <acceptanceCriteria>      <![CDATA[
+      1. Given a domain is selected, when I click “Export Radar Summary” then a Markdown file is saved to `docs/reports/<domain>-radar-<timestamp>.md` containing sections: Stack Snapshot, Risk Signals (drift/downtime/attack), Persona Hooks, Recommended Next Steps, Freshness note.
+2. Optionally convert Markdown to PDF using `markdown-pdf` or `fpdf` (flag/checkbox).
+3. Export references the job ID and persona `story_prompt`, includes citations for data sources (timestamps, rule metadata).
+4. UI shows preview before download; success toast indicates file location.
+5. README documents how to run export via CLI or Streamlit.
+      ]]></acceptanceCriteria>
+
+  <artifacts>
+    <docs>      <doc path="docs/sprint-artifacts/5-2-radar-one-pager-export.md" title="GTM Radar One-Pager Export" section="Story Draft" snippet="As AE Alex, I want to click “Generate Radar Summary” for a domain and receive a Markdown/PDF one-pager, so I can share stack snapshot, scores, hooks, and next steps with my team or prospects." />
+      <doc path="docs/epics.md" title="WAF Security - Epic Breakdown" section="Story 5.2" snippet="As AE Alex, I want to click “Generate Radar Summary” for a domain so I get a Markdown/PDF with stack snapshot, scores, hook, and recommended next step. **Acceptance Criteria** • **Given** I select a domain • **When** I click export • **Then** a Markdown file saves to `docs/reports/` with sections (Stack Snapshot, Risk Signals, Persona Hooks, Next Steps) and…" />
+      <doc path="docs/prd.md" title="Product Requirements Document" section="Executive Summary" snippet="WAF Security establishes a local-first “insight spine” that combines WAFtotal (vendor-agnostic managed-rule transparency) with GTM Radar (domain fingerprinting + storytelling) so every security, architecture, and GTM conversation starts with evidence instead of guesswork. By harvesting domain signals, normalizing Cloudflare/AWS/Akamai rule packs, and…" />
+      <doc path="docs/architecture.md" title="Architecture Specification" section="Project Context &amp; Goals" snippet="- **Deployment Reality:** Local-first sandbox meant to run entirely on a lone laptop (Streamlit UI, FastAPI services, DuckDB file storage). No cloud infra, no Postgres/React rewrite—lightweight scripts + HTML artifacts are sufficient so iteration stays fast. - **Primary Outcomes:** 1. Fingerprint domains (CLI + FastAPI) and persist results in DuckDB. 2.…" />
+      <doc path="docs/product-brief-WAF Security-2025-11-30.md" title="Product Brief" section="Executive Summary" snippet="WAF Security is building an internal “insight spine” that fuses two sibling ideas—**WAFtotal**, a vendor-agnostic managed-rule transparency experience, and **GTM Radar**, a domain fingerprinting + storytelling engine for sales and marketing teams. Together they deliver three promises: (1) decode any prospect’s WAF/CDN posture in minutes, (2) expose…" />
+      <doc path="docs/research-market-2025-11-30.md" title="Market/Domain Research" section="Executive Summary" snippet="- The global web application firewall (WAF) market is scaling aggressively: SNS Insider pegs it at **USD 6.35 B in 2023 with a path to USD 28.6 B by 2032 (18.2% CAGR)**, while ResearchAndMarkets estimates **USD 6.22 B in 2024 growing to USD 19.2 B by 2033 (13.3% CAGR)**, giving us a triangulated TAM envelope of USD 19–29 B within a decade. - [Source: SNS…" /></docs>
+    <code>      <code path="ui/app.py" kind="ui" symbol="WAF Security Lab layout" lines="1-56" reason="Base UI for radar table + persona hooks." />
+      <code path="backend/services/persona.py" kind="service" symbol="list_personas" lines="8-48" reason="Supplies persona metadata for reporting exports." />
+      <code path="backend/services/storage.py" kind="service" symbol="list_domains helpers" lines="49-68" reason="Provides data retrieval for radar tables and report exports." /></code>
+    <dependencies>      <dependency name="streamlit" version="1.40.1" scope="ui" />
+      <dependency name="fastapi" version="0.115.2" scope="api" />
+      <dependency name="httpx" version="0.27.0" scope="api" /></dependencies>
+  </artifacts>
+
+  <constraints>      <![CDATA[
+      - Reuse persona service + scoring to populate fields.  
+- Ensure styling matches Midnight Intelligence (e.g., use inline badges).  
+- When converting to PDF, keep dependencies lightweight (fpdf or markdown-pdf).
+
+### Project Structure Notes
+
+- Templates under `docs/templates/` or `backend/templates/`.  
+- Export helper resides in `backend/services/export.py` with other exporters.
+
+### References
+
+- [Source: docs/epics.md#story-52-gtm-radar-one-pager-export]  
+- [Source: docs/prd.md#functional-requirements FR12, FR14]
+      ]]></constraints>
+  <interfaces>      <interface name="Streamlit Radar view" kind="UI component" signature="ui/app.py::main session" path="ui/app.py" /></interfaces>
+  <tests>
+    <standards>      <![CDATA[
+      - [x] domain_enrich.py run Command: `python scripts/domain_enrich.py data/samples/domains.csv` Result: Generated four enriched records in DuckDB, offline heuristics used. - [x] rule_sync/run.py Command: `python scripts/rule_sync/run.py cloudflare --source data/rules/cloudflare_sample.json` Result: Loaded two sample managed rules. - [x] API schema test…
+      ]]></standards>
+    <locations>      <![CDATA[
+      tests/, scripts/, ui/
+      ]]></locations>
+    <ideas>      <![CDATA[
+      AC1: Verify Given a domain is selected, when I click “Export Radar Summary” then a Markdown file is saved to `docs/reports/<domain>-radar-<timestamp>.md` containing sections: Stack Snapshot, Risk Signals (drift/downtime/attack), Persona Hooks, Recommended Next Steps, Freshness note.; AC2: Verify Optionally convert Markdown to PDF using `markdown-pdf` or `fpdf` (flag/checkbox).; AC3: Verify Export references the job ID and persona `story_prompt`, includes citations for data sources (timestamps, rule metadata).; AC4: Verify UI shows preview before download; success toast indicates file location.; AC5: Verify README documents how to run export via CLI or Streamlit.
+      ]]></ideas>
+  </tests>
+</story-context>

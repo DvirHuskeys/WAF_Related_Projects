@@ -4,6 +4,7 @@ import csv
 import json
 import re
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List
 
@@ -84,62 +85,65 @@ def _process_domains(domains: List[str], summary: Summary, dry_run: bool) -> Non
         typer.secho(f"DuckDB connection failed: {exc}", fg=typer.colors.RED)
         raise typer.Exit(1)
 
-    progress_iterable = typer.progressbar(domains, label="Enriching domains")
-    with conn:
-        for domain in progress_iterable:
-            summary.processed += 1
-            normalized = domain.strip().lower()
-            if not _is_valid_domain(normalized):
-                summary.skipped_invalid += 1
-                typer.secho(f"[!] Skipping invalid domain '{domain}'", fg=typer.colors.YELLOW)
-                continue
-            if normalized in seen:
-                summary.skipped_duplicate += 1
+    with typer.progressbar(domains, label="Enriching domains") as progress_iterable:
+        with conn:
+            for domain in progress_iterable:
+                summary.processed += 1
+                normalized = domain.strip().lower()
+                if not _is_valid_domain(normalized):
+                    summary.skipped_invalid += 1
+                    typer.secho(
+                        f"[!] Skipping invalid domain '{domain}'", fg=typer.colors.YELLOW
+                    )
+                    continue
+                if normalized in seen:
+                    summary.skipped_duplicate += 1
+                    typer.secho(
+                        f"[!] Duplicate domain '{domain}' skipped",
+                        fg=typer.colors.YELLOW,
+                    )
+                    continue
+
+                seen.add(normalized)
+                if dry_run:
+                    typer.echo(f"[dry-run] Would enrich {normalized}")
+                    continue
+
+                stack = fingerprint.detect_stack(normalized)
+                scores = scoring.derive_scores(normalized, stack["detected_waf"])
+                payload = {
+                    "domain": normalized,
+                    "detected_waf": stack["detected_waf"],
+                    "detected_cdn": stack["detected_cdn"],
+                    "config_drift_score": scores["config_drift"],
+                    "downtime_risk_score": scores["downtime_risk"],
+                    "attack_surface_score": scores["attack_surface"],
+                    "last_observed": datetime.utcnow(),
+                    "raw": json.dumps(stack),
+                }
+                conn.execute(
+                    """
+                    INSERT OR REPLACE INTO domain_enrichment VALUES (
+                        ?, ?, ?, ?, ?, ?, ?, ?
+                    )
+                    """,
+                    (
+                        payload["domain"],
+                        payload["detected_waf"],
+                        payload["detected_cdn"],
+                        payload["config_drift_score"],
+                        payload["downtime_risk_score"],
+                        payload["attack_surface_score"],
+                        payload["last_observed"],
+                        payload["raw"],
+                    ),
+                )
+                summary.inserted += 1
                 typer.secho(
-                    f"[!] Duplicate domain '{domain}' skipped", fg=typer.colors.YELLOW
+                    f"[+] {normalized} → {stack['detected_waf']}/{stack['detected_cdn']} "
+                    f"drift {scores['config_drift']:.2f}",
+                    fg=typer.colors.GREEN,
                 )
-                continue
-
-            seen.add(normalized)
-            if dry_run:
-                typer.echo(f"[dry-run] Would enrich {normalized}")
-                continue
-
-            stack = fingerprint.detect_stack(normalized)
-            scores = scoring.derive_scores(normalized, stack["detected_waf"])
-            payload = {
-                "domain": normalized,
-                "detected_waf": stack["detected_waf"],
-                "detected_cdn": stack["detected_cdn"],
-                "config_drift_score": scores["config_drift"],
-                "downtime_risk_score": scores["downtime_risk"],
-                "attack_surface_score": scores["attack_surface"],
-                "last_observed": datetime.utcnow(),
-                "raw": json.dumps(stack),
-            }
-            conn.execute(
-                """
-                INSERT OR REPLACE INTO domain_enrichment VALUES (
-                    ?, ?, ?, ?, ?, ?, ?, ?
-                )
-                """,
-                (
-                    payload["domain"],
-                    payload["detected_waf"],
-                    payload["detected_cdn"],
-                    payload["config_drift_score"],
-                    payload["downtime_risk_score"],
-                    payload["attack_surface_score"],
-                    payload["last_observed"],
-                    payload["raw"],
-                ),
-            )
-            summary.inserted += 1
-            typer.secho(
-                f"[+] {normalized} → {stack['detected_waf']}/{stack['detected_cdn']} "
-                f"drift {scores['config_drift']:.2f}",
-                fg=typer.colors.GREEN,
-            )
 
 
 def _load_domains(csv_path: Path) -> List[str]:

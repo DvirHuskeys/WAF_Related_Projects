@@ -1,6 +1,6 @@
 # Story 1.4: Sample Data Loader
 
-Status: drafted
+Status: review
 
 ## Story
 
@@ -17,16 +17,16 @@ so that anyone can demo the Streamlit UI without running the full enrichment pip
 
 ## Tasks / Subtasks
 
-- [ ] Implement `scripts/seed_sample_data.py` (AC: 1,4)  
-  - [ ] Read sample CSV, insert/update rows via `duckdb` connection.  
-  - [ ] Load Cloudflare JSON via existing adapter (`scripts/rule_sync/cloudflare.py`).  
-  - [ ] Print status lines (counts, success).  
-- [ ] Handle idempotency (AC: 2)  
-  - [ ] Use `INSERT OR REPLACE` or delete existing sample rows before insert.  
-  - [ ] Ensure rule IDs serve as natural keys.  
-- [ ] Hook into UI flow (AC: 3)  
-  - [ ] After seeding, print “Run `streamlit run ui/app.py`” or trigger a Session State refresh (if executed via Streamlit button).  
-  - [ ] Optionally expose a Streamlit button that calls the script via subprocess for non-CLI users.
+- [x] Implement `scripts/seed_sample_data.py` (AC: 1,4)  
+  - [x] Read sample CSV, insert/update rows via `duckdb` connection.  
+  - [x] Load Cloudflare JSON via existing adapter (`scripts/rule_sync/cloudflare.py`).  
+  - [x] Print status lines (counts, success).  
+- [x] Handle idempotency (AC: 2)  
+  - [x] Use targeted deletes before insert so domains/rules stay unique.  
+  - [x] Ensure rule IDs serve as natural keys.  
+- [x] Hook into UI flow (AC: 3)  
+  - [x] After seeding, print “Run `streamlit run ui/app.py`” to refresh UI.  
+  - [x] Added `make seed-sample-data` target for non-CLI users.
 
 ## Dev Notes
 
@@ -48,15 +48,32 @@ so that anyone can demo the Streamlit UI without running the full enrichment pip
 
 ### Context Reference
 
-<!-- story-context XML placeholder -->
+- docs/sprint-artifacts/1-4-sample-data-loader.context.xml
+
 
 ### Agent Model Used
 
-_TBD during implementation_
+GPT-5.1 Codex
 
 ### Debug Log References
 
+- 2025-11-30: Built `scripts/seed_sample_data.py` using storage helpers + Cloudflare adapter; includes logging, `--reset`, and deterministic payloads for domains/rules.
+- 2025-11-30: Added `make seed-sample-data` + README instructions so users can seed data without remembering the script path; CLI prints reminders to launch Streamlit (AC3).
+- 2025-11-30: Verified seeding + regression suite via `python scripts/seed_sample_data.py --reset` and `make test`.
+
 ### Completion Notes List
+
+- Sample loader seeds four domains/two rules from repo fixtures, logs each step, and exits non-zero on failure; repeat runs stay idempotent via targeted deletes.
+- README + Makefile document the new workflow step, keeping bootstrapping simple for demos.
+- Tests remain green; manual runs confirm Streamlit sees seeded data immediately.
 
 ### File List
 
+- `scripts/seed_sample_data.py`
+- `Makefile`
+- `README.md`
+- `docs/sprint-artifacts/sprint-status.yaml`
+
+## Change Log
+
+- 2025-11-30: Implemented deterministic sample data loader + documentation updates; story ready for review.

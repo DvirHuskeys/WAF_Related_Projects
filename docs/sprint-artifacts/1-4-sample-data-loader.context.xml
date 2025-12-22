@@ -1,0 +1,79 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>4</storyId>
+    <title>Sample Data Loader</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-30</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/1-4-sample-data-loader.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>As a developer</asA>
+    <iWant>I want a script that seeds demo domains and Cloudflare rule entries into DuckDB</iWant>
+    <soThat>so that anyone can demo the Streamlit UI without running the full enrichment pipeline.</soThat>
+    <tasks>      <![CDATA[
+      - [ ] Implement `scripts/seed_sample_data.py` (AC: 1,4)  
+  - [ ] Read sample CSV, insert/update rows via `duckdb` connection.  
+  - [ ] Load Cloudflare JSON via existing adapter (`scripts/rule_sync/cloudflare.py`).  
+  - [ ] Print status lines (counts, success).  
+- [ ] Handle idempotency (AC: 2)  
+  - [ ] Use `INSERT OR REPLACE` or delete existing sample rows before insert.  
+  - [ ] Ensure rule IDs serve as natural keys.  
+- [ ] Hook into UI flow (AC: 3)  
+  - [ ] After seeding, print “Run `streamlit run ui/app.py`” or trigger a Session State refresh (if executed via Streamlit button).  
+  - [ ] Optionally expose a Streamlit button that calls the script via subprocess for non-CLI users.
+      ]]></tasks>
+  </story>
+
+  <acceptanceCriteria>      <![CDATA[
+      1. Given sample files (`data/samples/domains.csv`, `data/rules/cloudflare_sample.json`) exist, when I run `python scripts/seed_sample_data.py`, then DuckDB `domain_enrichment` includes at least four rows and `managed_rules` includes at least two rows matching the samples.
+2. Re-running the script upserts data (no duplicate domains/rules).
+3. After seeding, the Streamlit UI automatically refreshes (or prints a reminder) to display the seeded rows.
+4. Script logs each step (loading CSV, syncing rules) and exits non-zero on failure.
+      ]]></acceptanceCriteria>
+
+  <artifacts>
+    <docs>      <doc path="docs/sprint-artifacts/1-4-sample-data-loader.md" title="Sample Data Loader" section="Story Draft" snippet="As a developer, I want a script that seeds demo domains and Cloudflare rule entries into DuckDB, so that anyone can demo the Streamlit UI without running the full enrichment pipeline." />
+      <doc path="docs/epics.md" title="WAF Security - Epic Breakdown" section="Story 1.4" snippet="As a developer, I want a script that seeds demo domains and Cloudflare rules so demos work immediately. **Acceptance Criteria** • **Given** sample CSV and JSON files exist • **When** I run `python scripts/seed_sample_data.py` • **Then** DuckDB contains at least four domain rows and two rule rows identical to the samples • **And** Streamlit UI refreshes…" />
+      <doc path="docs/prd.md" title="Product Requirements Document" section="Executive Summary" snippet="WAF Security establishes a local-first “insight spine” that combines WAFtotal (vendor-agnostic managed-rule transparency) with GTM Radar (domain fingerprinting + storytelling) so every security, architecture, and GTM conversation starts with evidence instead of guesswork. By harvesting domain signals, normalizing Cloudflare/AWS/Akamai rule packs, and…" />
+      <doc path="docs/architecture.md" title="Architecture Specification" section="Project Context &amp; Goals" snippet="- **Deployment Reality:** Local-first sandbox meant to run entirely on a lone laptop (Streamlit UI, FastAPI services, DuckDB file storage). No cloud infra, no Postgres/React rewrite—lightweight scripts + HTML artifacts are sufficient so iteration stays fast. - **Primary Outcomes:** 1. Fingerprint domains (CLI + FastAPI) and persist results in DuckDB. 2.…" />
+      <doc path="docs/product-brief-WAF Security-2025-11-30.md" title="Product Brief" section="Executive Summary" snippet="WAF Security is building an internal “insight spine” that fuses two sibling ideas—**WAFtotal**, a vendor-agnostic managed-rule transparency experience, and **GTM Radar**, a domain fingerprinting + storytelling engine for sales and marketing teams. Together they deliver three promises: (1) decode any prospect’s WAF/CDN posture in minutes, (2) expose…" />
+      <doc path="docs/research-market-2025-11-30.md" title="Market/Domain Research" section="Executive Summary" snippet="- The global web application firewall (WAF) market is scaling aggressively: SNS Insider pegs it at **USD 6.35 B in 2023 with a path to USD 28.6 B by 2032 (18.2% CAGR)**, while ResearchAndMarkets estimates **USD 6.22 B in 2024 growing to USD 19.2 B by 2033 (13.3% CAGR)**, giving us a triangulated TAM envelope of USD 19–29 B within a decade. - [Source: SNS…" /></docs>
+    <code>      <code path="backend/services/storage.py" kind="service" symbol="get_connection" lines="11-68" reason="Ensures DuckDB schema aligns with sandbox bootstrap expectations." />
+      <code path="ui/app.py" kind="ui" symbol="Streamlit dashboard" lines="1-56" reason="Provides the base Streamlit shell referenced in foundation stories." />
+      <code path="scripts/domain_enrich.py" kind="cli" symbol="main" lines="20-87" reason="Seeds sample data as part of lab initialization smoke tests." /></code>
+    <dependencies>      <dependency name="streamlit" version="1.40.1" scope="ui" />
+      <dependency name="duckdb" version="1.1.3" scope="storage" />
+      <dependency name="typer" version="0.12.5" scope="cli" /></dependencies>
+  </artifacts>
+
+  <constraints>      <![CDATA[
+      - Reuses logic from Stories 2.1–2.3 but with fixed sample files to keep the demo deterministic.  
+- Consider adding a `--reset` flag to wipe data clean.  
+- Keeps project aligned with local-first architecture (no network calls).
+
+### Project Structure Notes
+
+- Place script in `scripts/` alongside enrichment/rule-sync CLIs; follow existing Typer pattern if desired.  
+- Update README/Makefile with `make seed-sample-data` convenience target.
+
+### References
+
+- [Source: docs/epics.md#story-14-sample-data-loader]  
+- [Source: docs/prd.md#functional-requirements] (FR1–FR4 foundation)
+      ]]></constraints>
+  <interfaces>      <interface name="FastAPI admin endpoints" kind="REST endpoint" signature="GET /personas" path="backend/main.py" /></interfaces>
+  <tests>
+    <standards>      <![CDATA[
+      - [x] domain_enrich.py run Command: `python scripts/domain_enrich.py data/samples/domains.csv` Result: Generated four enriched records in DuckDB, offline heuristics used. - [x] rule_sync/run.py Command: `python scripts/rule_sync/run.py cloudflare --source data/rules/cloudflare_sample.json` Result: Loaded two sample managed rules. - [x] API schema test…
+      ]]></standards>
+    <locations>      <![CDATA[
+      tests/, scripts/, ui/
+      ]]></locations>
+    <ideas>      <![CDATA[
+      AC1: Verify Given sample files (`data/samples/domains.csv`, `data/rules/cloudflare_sample.json`) exist, when I run `python scripts/seed_sample_data.py`, then DuckDB `domain_enrichment` includes at least four rows and `managed_rules` includes at least two rows matching the samples.; AC2: Verify Re-running the script upserts data (no duplicate domains/rules).; AC3: Verify After seeding, the Streamlit UI automatically refreshes (or prints a reminder) to display the seeded rows.; AC4: Verify Script logs each step (loading CSV, syncing rules) and exits non-zero on failure.
+      ]]></ideas>
+  </tests>
+</story-context>

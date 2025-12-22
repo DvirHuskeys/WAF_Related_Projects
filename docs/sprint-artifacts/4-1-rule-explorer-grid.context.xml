@@ -1,0 +1,78 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>4</epicId>
+    <storyId>1</storyId>
+    <title>Rule Explorer Grid</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-30</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/4-1-rule-explorer-grid.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>As a security analyst</asA>
+    <iWant>I want a tabular “Rule Studio” view that lists normalized managed rules with filters and freshness indicators</iWant>
+    <soThat></soThat>
+    <tasks>      <![CDATA[
+      - [ ] Streamlit table implementation (AC: 1–4)  
+  - [ ] Query DuckDB `managed_rules` table; convert to pandas or AgGrid.  
+  - [ ] Add filter widgets; persist selections via `st.session_state`.  
+- [ ] Selection hooks (AC: 3)  
+  - [ ] Provide checkbox column + “Compare selected” button that passes IDs to drawer (Story 4.2).  
+- [ ] Empty state (AC: 5)  
+  - [ ] Show instructions referencing `python scripts/rule_sync/run.py`.  
+- [ ] Theme polish (AC: 4)  
+  - [ ] Apply colors/badges per UX spec; add stale badge (ties to Story 2.5).
+      ]]></tasks>
+  </story>
+
+  <acceptanceCriteria>      <![CDATA[
+      1. The Rule Studio page displays a table with columns: vendor, rule_id, name, category, severity, freshness badge, and last synced timestamp (from DuckDB).
+2. Users can filter by vendor, category, severity, and freshness (stale vs fresh) via chips or dropdowns; search box matches rule name/id.
+3. Table supports multi-select (checkboxes) for downstream comparisons (Story 4.2); selected count displayed.
+4. Layout uses Midnight Intelligence theme tokens and follows UX density guidelines (cards with subtle borders, sticky header).
+5. Empty state explains how to run rule sync CLI if no rules exist.
+      ]]></acceptanceCriteria>
+
+  <artifacts>
+    <docs>      <doc path="docs/sprint-artifacts/4-1-rule-explorer-grid.md" title="Rule Explorer Grid" section="Story Draft" snippet="As a security analyst, I want a tabular “Rule Studio” view that lists normalized managed rules with filters and freshness indicators, so I can quickly scan coverage across vendors before diving into comparisons." />
+      <doc path="docs/epics.md" title="WAF Security - Epic Breakdown" section="Story 4.1" snippet="As a security analyst, I want a tabular view of managed rules filterable by vendor, category, severity, and freshness so I can scan coverage quickly. **Acceptance Criteria** • **Given** managed_rules table has rows • **When** I open “Rule Studio” tab • **Then** the grid displays vendor, rule id, name, category, severity, freshness badge, and includes filter…" />
+      <doc path="docs/prd.md" title="Product Requirements Document" section="Executive Summary" snippet="WAF Security establishes a local-first “insight spine” that combines WAFtotal (vendor-agnostic managed-rule transparency) with GTM Radar (domain fingerprinting + storytelling) so every security, architecture, and GTM conversation starts with evidence instead of guesswork. By harvesting domain signals, normalizing Cloudflare/AWS/Akamai rule packs, and…" />
+      <doc path="docs/architecture.md" title="Architecture Specification" section="Project Context &amp; Goals" snippet="- **Deployment Reality:** Local-first sandbox meant to run entirely on a lone laptop (Streamlit UI, FastAPI services, DuckDB file storage). No cloud infra, no Postgres/React rewrite—lightweight scripts + HTML artifacts are sufficient so iteration stays fast. - **Primary Outcomes:** 1. Fingerprint domains (CLI + FastAPI) and persist results in DuckDB. 2.…" />
+      <doc path="docs/product-brief-WAF Security-2025-11-30.md" title="Product Brief" section="Executive Summary" snippet="WAF Security is building an internal “insight spine” that fuses two sibling ideas—**WAFtotal**, a vendor-agnostic managed-rule transparency experience, and **GTM Radar**, a domain fingerprinting + storytelling engine for sales and marketing teams. Together they deliver three promises: (1) decode any prospect’s WAF/CDN posture in minutes, (2) expose…" />
+      <doc path="docs/research-market-2025-11-30.md" title="Market/Domain Research" section="Executive Summary" snippet="- The global web application firewall (WAF) market is scaling aggressively: SNS Insider pegs it at **USD 6.35 B in 2023 with a path to USD 28.6 B by 2032 (18.2% CAGR)**, while ResearchAndMarkets estimates **USD 6.22 B in 2024 growing to USD 19.2 B by 2033 (13.3% CAGR)**, giving us a triangulated TAM envelope of USD 19–29 B within a decade. - [Source: SNS…" /></docs>
+    <code>      <code path="scripts/rule_sync/run.py" kind="cli" symbol="main entry" lines="1-120" reason="Normalizes vendor rule packs for Rule Transparency Studio stories." />
+      <code path="scripts/rule_sync/cloudflare.py" kind="adapter" symbol="load_rules" lines="1-120" reason="Concrete adapter showing how vendor rules are parsed and exposed." />
+      <code path="backend/services/storage.py" kind="service" symbol="managed_rules schema" lines="18-47" reason="Stores normalized rules used by grid/comparison/annotation flows." /></code>
+    <dependencies>      <dependency name="duckdb" version="1.1.3" scope="storage" />
+      <dependency name="pandas" version="2.2.3" scope="data" />
+      <dependency name="python-whois" version="0.8.0" scope="intel" /></dependencies>
+  </artifacts>
+
+  <constraints>      <![CDATA[
+      - Ensure table pagination or virtualization to handle large sets.  
+- Consider caching DuckDB query for improved performance.
+
+### Project Structure Notes
+
+- Add `ui/pages/rule_studio.py` or component helper to keep `app.py` manageable.  
+- Reuse stale helper from Story 2.5.
+
+### References
+
+- [Source: docs/epics.md#story-41-rule-explorer-grid]  
+- [Source: docs/ux-design-specification.md#core-experience-principles]
+      ]]></constraints>
+  <interfaces>      <interface name="rule_sync adapter runner" kind="CLI command" signature="python scripts/rule_sync/run.py cloudflare --source data/rules/cloudflare_sample.json" path="scripts/rule_sync/run.py" /></interfaces>
+  <tests>
+    <standards>      <![CDATA[
+      - [x] domain_enrich.py run Command: `python scripts/domain_enrich.py data/samples/domains.csv` Result: Generated four enriched records in DuckDB, offline heuristics used. - [x] rule_sync/run.py Command: `python scripts/rule_sync/run.py cloudflare --source data/rules/cloudflare_sample.json` Result: Loaded two sample managed rules. - [x] API schema test…
+      ]]></standards>
+    <locations>      <![CDATA[
+      tests/, scripts/, ui/
+      ]]></locations>
+    <ideas>      <![CDATA[
+      AC1: Verify The Rule Studio page displays a table with columns: vendor, rule_id, name, category, severity, freshness badge, and last synced timestamp (from DuckDB).; AC2: Verify Users can filter by vendor, category, severity, and freshness (stale vs fresh) via chips or dropdowns; search box matches rule name/id.; AC3: Verify Table supports multi-select (checkboxes) for downstream comparisons (Story 4.2); selected count displayed.; AC4: Verify Layout uses Midnight Intelligence theme tokens and follows UX density guidelines (cards with subtle borders, sticky header).; AC5: Verify Empty state explains how to run rule sync CLI if no rules exist.
+      ]]></ideas>
+  </tests>
+</story-context>

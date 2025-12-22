@@ -1,6 +1,6 @@
 # Story 1.3: Streamlit Shell with Persona Hooks
 
-Status: drafted
+Status: review
 
 ## Story
 
@@ -17,16 +17,16 @@ so that I can see the workflow skeleton and understand how GTM Radar will work o
 
 ## Tasks / Subtasks
 
-- [ ] Implement Streamlit layout per UX spec (AC: 1–3)  
-  - [ ] Add empty-state container with CLI instructions + button to open docs.  
-  - [ ] Render persona selector + placeholder cards pulling dummy narrative text.  
-  - [ ] Add metrics cards + table component wired to DuckDB query (fallback to empty dataframe).  
-- [ ] Integrate services (AC: 2 & 4)  
-  - [ ] Import `backend/services/persona` and `storage` modules; handle missing DB gracefully.  
-  - [ ] Log connection errors and show instruction panel.  
-- [ ] Apply theme + accessibility (AC: 3)  
-  - [ ] Use Midnight Intelligence colors (`docs/ux-color-themes.html`) for buttons/badges.  
-  - [ ] Ensure text contrast meets WCAG AA and components have focus outlines.
+- [x] Implement Streamlit layout per UX spec (AC: 1–3)  
+  - [x] Add empty-state container with CLI instructions + button to open docs.  
+  - [x] Render persona selector + placeholder cards pulling dummy narrative text.  
+  - [x] Add metrics cards + table component wired to DuckDB query (fallback to empty dataframe).  
+- [x] Integrate services (AC: 2 & 4)  
+  - [x] Import `backend/services/persona` and `storage` modules; handle missing DB gracefully.  
+  - [x] Log connection errors and show instruction panel.  
+- [x] Apply theme + accessibility (AC: 3)  
+  - [x] Use Midnight Intelligence colors (`docs/ux-color-themes.html`) for buttons/badges.  
+  - [x] Ensure text contrast meets WCAG AA and components have focus outlines.
 
 ## Dev Notes
 
@@ -50,15 +50,30 @@ so that I can see the workflow skeleton and understand how GTM Radar will work o
 
 ### Context Reference
 
-<!-- story-context XML placeholder -->
+- docs/sprint-artifacts/1-3-streamlit-shell-personas.context.xml
+
 
 ### Agent Model Used
 
-_TBD during implementation_
+GPT-5.1 Codex
 
 ### Debug Log References
 
+- 2025-11-30: Refactored `ui/app.py` with theme injection, persona placeholders, metrics/table helpers, and connection-safe data loading so AC1–AC4 can be exercised without DuckDB data.
+- 2025-11-30: Added empty-state instructions referencing `python scripts/domain_enrich.py ...` plus error guidance (`make init-db`) to satisfy UX + troubleshooting requirements.
+- 2025-11-30: Verified regression suite (`make test`) to ensure schema helpers + UI imports remain green.
+
 ### Completion Notes List
+
+- Streamlit page now always loads persona selector + cards, renders Midnight Intelligence-themed metrics/table placeholders, and degrades gracefully when no enrichment data exists.
+- Added friendly empty state and connection error messaging; both list exact bootstrap commands for users.
+- Live data path still renders metrics, tables, persona prompts, and raw record details when DuckDB contains domains.
 
 ### File List
 
+- `ui/app.py`
+- `docs/sprint-artifacts/sprint-status.yaml`
+
+## Change Log
+
+- 2025-11-30: Implemented Streamlit shell placeholders, theme styling, and connection-safe UX; story ready for review.

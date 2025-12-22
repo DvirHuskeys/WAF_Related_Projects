@@ -1,0 +1,81 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>3</epicId>
+    <storyId>4</storyId>
+    <title>Persona Card UI with Copy Button</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-30</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/3-4-persona-card-ui.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>As GTM users</asA>
+    <iWant></iWant>
+    <soThat></soThat>
+    <tasks>      <![CDATA[
+      - [ ] Persona card component (AC: 1–4)  
+  - [ ] Implement Streamlit function rendering card layout per UX spec.  
+  - [ ] Include avatar icons (maybe emoji or small PNG) per persona.  
+- [ ] Copy button (AC: 2)  
+  - [ ] Use Streamlit `st.button` or custom JS to copy text; show toast via `st.success`.  
+  - [ ] Handle keyboard activation (Enter/Space).  
+- [ ] Secondary hooks (AC: 3)  
+  - [ ] Display hook badges; clicking sets “selected hook” and updates preview text.  
+- [ ] Empty state + data refresh (AC: 5)  
+  - [ ] Show instructions when persona service returns 404.  
+  - [ ] Provide “Refresh data” button to re-run query.
+      ]]></tasks>
+  </story>
+
+  <acceptanceCriteria>      <![CDATA[
+      1. Persona cards display: persona avatar/icon, name, goal snippet, stack snapshot (WAF/CDN), drift/downtime/attack scores with badges, freshness warning, and main hook text.
+2. “Copy message” button copies the story prompt + citation to clipboard, showing a “Copied!” toast and subtle state change for 2 seconds.
+3. Secondary hooks appear as badges or bullet list items; clicking them updates the main hook preview.
+4. Cards respect Midnight Intelligence theme, spacing, and accessibility requirements (focus outlines, readable colors).
+5. Empty-state: if no persona data exists, the panel explains how to run enrichment CLI; when data exists, cards update instantly.
+      ]]></acceptanceCriteria>
+
+  <artifacts>
+    <docs>      <doc path="docs/sprint-artifacts/3-4-persona-card-ui.md" title="Persona Card UI with Copy Button" section="Story Draft" snippet="As GTM users, we want persona cards inside Streamlit that mirror the UX spec—including avatars, scores, hooks, and copy-to-clipboard buttons— so storytelling becomes frictionless once data is available." />
+      <doc path="docs/epics.md" title="WAF Security - Epic Breakdown" section="Story 3.4" snippet="As GTM users, we want persona cards inside Streamlit that match the UX spec so storytelling is frictionless. **Acceptance Criteria** • **Given** persona data exists • **When** I select a domain + persona • **Then** the card shows persona avatar, stack snapshot, hook text, copy button with “Copied!” state, and shortcuts to exports **Prerequisites** Stories…" />
+      <doc path="docs/prd.md" title="Product Requirements Document" section="Executive Summary" snippet="WAF Security establishes a local-first “insight spine” that combines WAFtotal (vendor-agnostic managed-rule transparency) with GTM Radar (domain fingerprinting + storytelling) so every security, architecture, and GTM conversation starts with evidence instead of guesswork. By harvesting domain signals, normalizing Cloudflare/AWS/Akamai rule packs, and…" />
+      <doc path="docs/architecture.md" title="Architecture Specification" section="Project Context &amp; Goals" snippet="- **Deployment Reality:** Local-first sandbox meant to run entirely on a lone laptop (Streamlit UI, FastAPI services, DuckDB file storage). No cloud infra, no Postgres/React rewrite—lightweight scripts + HTML artifacts are sufficient so iteration stays fast. - **Primary Outcomes:** 1. Fingerprint domains (CLI + FastAPI) and persist results in DuckDB. 2.…" />
+      <doc path="docs/product-brief-WAF Security-2025-11-30.md" title="Product Brief" section="Executive Summary" snippet="WAF Security is building an internal “insight spine” that fuses two sibling ideas—**WAFtotal**, a vendor-agnostic managed-rule transparency experience, and **GTM Radar**, a domain fingerprinting + storytelling engine for sales and marketing teams. Together they deliver three promises: (1) decode any prospect’s WAF/CDN posture in minutes, (2) expose…" />
+      <doc path="docs/research-market-2025-11-30.md" title="Market/Domain Research" section="Executive Summary" snippet="- The global web application firewall (WAF) market is scaling aggressively: SNS Insider pegs it at **USD 6.35 B in 2023 with a path to USD 28.6 B by 2032 (18.2% CAGR)**, while ResearchAndMarkets estimates **USD 6.22 B in 2024 growing to USD 19.2 B by 2033 (13.3% CAGR)**, giving us a triangulated TAM envelope of USD 19–29 B within a decade. - [Source: SNS…" /></docs>
+    <code>      <code path="backend/services/persona.py" kind="service" symbol="generate_persona_view" lines="28-48" reason="Persona payload builder powering API/UI flows in Epic 3." />
+      <code path="backend/services/scoring.py" kind="service" symbol="derive_scores" lines="6-18" reason="Derives persona-ready metrics for story mapping." />
+      <code path="ui/app.py" kind="ui" symbol="Persona card surface" lines="1-56" reason="Renders persona selectors and hooks required by Epic 3 UI work." /></code>
+    <dependencies>      <dependency name="fastapi" version="0.115.2" scope="api" />
+      <dependency name="duckdb" version="1.1.3" scope="storage" />
+      <dependency name="streamlit" version="1.40.1" scope="ui" /></dependencies>
+  </artifacts>
+
+  <constraints>      <![CDATA[
+      - Reuse `generate_persona_view()` output from Story 3.1; no duplicate logic.  
+- Keep layout responsive (two cards per row on desktop, stacked on mobile).  
+- Optionally cache persona data to avoid repeated DB hits.
+
+### Project Structure Notes
+
+- Consider `ui/components/persona_card.py` helper to avoid clutter in `ui/app.py`.  
+- Ensure CSS/JS stays minimal since Streamlit doesn’t allow heavy DOM manipulation.
+
+### References
+
+- [Source: docs/epics.md#story-34-persona-card-ui-with-copy-button]  
+- [Source: docs/ux-design-specification.md#user-experience-principles]
+      ]]></constraints>
+  <interfaces>      <interface name="GET /persona/{persona_id}/{domain}" kind="REST endpoint" signature="GET /persona/{persona_id}/{domain}" path="backend/main.py" /></interfaces>
+  <tests>
+    <standards>      <![CDATA[
+      - [x] domain_enrich.py run Command: `python scripts/domain_enrich.py data/samples/domains.csv` Result: Generated four enriched records in DuckDB, offline heuristics used. - [x] rule_sync/run.py Command: `python scripts/rule_sync/run.py cloudflare --source data/rules/cloudflare_sample.json` Result: Loaded two sample managed rules. - [x] API schema test…
+      ]]></standards>
+    <locations>      <![CDATA[
+      tests/, scripts/, ui/
+      ]]></locations>
+    <ideas>      <![CDATA[
+      AC1: Verify Persona cards display: persona avatar/icon, name, goal snippet, stack snapshot (WAF/CDN), drift/downtime/attack scores with badges, freshness warning, and main hook text.; AC2: Verify “Copy message” button copies the story prompt + citation to clipboard, showing a “Copied!” toast and subtle state change for 2 seconds.; AC3: Verify Secondary hooks appear as badges or bullet list items; clicking them updates the main hook preview.; AC4: Verify Cards respect Midnight Intelligence theme, spacing, and accessibility requirements (focus outlines, readable colors).; AC5: Verify Empty-state: if no persona data exists, the panel explains how to run enrichment CLI; when data exists, cards update instantly.
+      ]]></ideas>
+  </tests>
+</story-context>
