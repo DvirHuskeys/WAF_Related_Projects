@@ -1,0 +1,14 @@
+WAF ACTIVE POLICY - PRODUCTION (Last Updated: 2026-01-01)
+--------------------------------------------------------------------------------
+RuleID: 100001 | Name: SQLi-Core-Detection | Action: LOG | Logic: SQLi Core Signatures v2.4
+RuleID: 200005 | Name: Bot-Shield-Aggressive | Action: BLOCK | Logic: Block if UserAgent contains 'App'
+RuleID: 300010 | Name: SMS-Rate-Limit | Action: BLOCK | Logic: Rate-Limit: 3 req/min for path /api/v2/sms-send
+RuleID: 400001 | Name: Geo-US-Validation | Action: ALLOW | Logic: Path-based/Behavioral
+RuleID: 400002 | Name: Geo-EU-Validation | Action: ALLOW | Logic: Path-based/Behavioral
+RuleID: 500001 | Name: Browser-Integrity-Check | Action: ALLOW | Logic: Path-based/Behavioral
+RuleID: 500002 | Name: HTTP-Protocol-Violation | Action: ALLOW | Logic: Path-based/Behavioral
+RuleID: 600001 | Name: Static-Asset-Optimization | Action: ALLOW | Logic: Path-based/Behavioral
+RuleID: 200001 | Name: Known-Crawler-Detection | Action: ALLOW | Logic: Path-based/Behavioral
+RuleID: 100005 | Name: XSS-Detection-Passive | Action: LOG | Logic: Path-based/Behavioral
+RuleID: 300001 | Name: Global-L7-Rate-Limit | Action: ALLOW | Logic: Path-based/Behavioral
+RuleID: 700001 | Name: API-Shield-Verification | Action: ALLOW | Logic: Path-based/Behavioral

@@ -1,0 +1,6 @@
+MASTER SOLUTION KEY (v6)
+====================
+1. MISCONFIG: SQLi from 185.220.101.82 (Tor) returning 200. Rule 100001 is LOG only.
+2. FALSE POSITIVE: Mobile users blocked by Rule 200005 due to 'App' in TikTok UA.
+3. POLICY GAP: 98.228.149.101 abusing legacy endpoint /v1.0/legacy/ - Rule 300010 only covers /api/v2/.
+4. BOTNET: Coordinated AWS IP scraping. Use JA3/Rate limiting on Pricing path.
